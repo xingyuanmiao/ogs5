@@ -1,5 +1,6 @@
 set( HEADERS
 	BoundaryCondition.h
+	burgers.h
 	PhysicalConstant.h
 	Constrained.h
 	conversion_rate.h
@@ -16,9 +17,11 @@ set( HEADERS
 	files0.h
 	GeoInfo.h
 	InitialCondition.h
+	invariants.h
 	LinearFunctionData.h
 	mathlib.h
 	matrix_class.h
+	minkley.h
 	Output.h
 	pcs_dm.h
 	problem.h
