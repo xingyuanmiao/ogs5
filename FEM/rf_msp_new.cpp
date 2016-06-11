@@ -2030,6 +2030,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
         }
     }
 }
+/*************************************************************************
    FEMLib-Method: CSolidProperties::Calculate_Lame_Constant()
    Task: Get density
    Programing:
