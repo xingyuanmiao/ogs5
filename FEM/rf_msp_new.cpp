@@ -1951,6 +1951,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
         //increment solution vectors
         sig_j += inc_loc.block<6,1>(0,0);
         eps_K_j += inc_loc.block<6,1>(6,0);
+        eps_M_j += inc_loc.block<6,1>(12,0);
         //Calculate effective stress and update material properties
         sig_eff = smath->CalEffectiveStress(smath->P_dev*sig_j);
         material_minkley->UpdateMinkleyProperties(sig_eff*material_minkley->GM0, e_pl_eff, Temperature);
@@ -2021,6 +2022,8 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
     //Sort into Consistent Tangent matrix for global Newton iteration and into standard OGS arrays
     Kelvin_to_Voigt_Stress(sig_j,stress_curr);
     Kelvin_to_Voigt_Strain(eps_K_j,eps_K_curr);
+    Kelvin_to_Voigt_Strain(eps_M_j,eps_M_curr);
+    Kelvin_to_Voigt_Strain(eps_pl_j,eps_pl_curr);
     for (size_t i=0; i<3; i++)
     {
         for (size_t j=0; j<3; j++){
