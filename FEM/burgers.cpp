@@ -143,7 +143,7 @@ void SolidBurgers::CaldGdEBurgers(Eigen::Matrix<double,18,6> &dGdE)
     }
 
     dGdE.setZero(18,6);
-    dGdE.block<6,6>(0,0) = -2. * smath->ident;
+    dGdE.block<6,6>(0,0) = -2. * smath->P_dev;
 
 }
 
