@@ -133,8 +133,8 @@ Eigen::Matrix<double,6,1> SolidMinkley::DetaM_Dsigma(double sig_eff, const Eigen
    06/2015 TN Implementation
 **************************************************************************/
 void SolidMinkley::CalViscoelasticResidual(const double dt, const Eigen::Matrix<double,6,1> &dstrain_curr, const double e_curr, const double e_p_curr,
-                                           const Eigen::Matrix<double,6,1> &stress_curr, Eigen::Matrix<double,6,1> &dstrain_Kel_curr,
-                                           const Eigen::Matrix<double,6,1> &dstrain_Kel_t, Eigen::Matrix<double,6,1> &dstrain_Max_curr,
+                                           const Eigen::Matrix<double,6,1> &stress_curr, const Eigen::Matrix<double,6,1> &dstrain_Kel_curr,
+                                           const Eigen::Matrix<double,6,1> &dstrain_Kel_t, const Eigen::Matrix<double,6,1> &dstrain_Max_curr,
                                            const Eigen::Matrix<double,6,1> &dstrain_Max_t, const Eigen::Matrix<double,6,1> &dstrain_p_curr,
                                            Eigen::Matrix<double,18,1> &res)
 {
@@ -156,36 +156,44 @@ void SolidMinkley::CalViscoelasticResidual(const double dt, const Eigen::Matrix<
    06/2015 TN Implementation
 **************************************************************************/
 void SolidMinkley::CalViscoelasticJacobian(const double dt, const Eigen::Matrix<double,6,1> &stress_curr, const double sig_eff,
-                                           Eigen::Matrix<double,12,12> &Jac)
+                                           Eigen::Matrix<double,18,18> &Jac)
 {
     //6x6 submatrices of the Jacobian
-    Eigen::MatrixXd G_ij(6,6);
     const Eigen::Matrix<double,6,1> sigd_curr(smath->P_dev*stress_curr);
     const Eigen::Matrix<double,6,1> dmu_vM = DetaM_Dsigma(sig_eff*GM0,sigd_curr*GM0);
 
     //Check Dimension of Jacobian
-    if (Jac.cols() != 12 || Jac.rows() != 12)
+    if (Jac.cols() != 18 || Jac.rows() != 18)
     {
-        std::cout << "WARNING: Jacobian given to SolidMinkley::CalViscoelasticJacobian has wrong size. Resizing to 12x12\n";
-        Jac.resize(12,12);
+        std::cout << "WARNING: Jacobian given to SolidMinkley::CalViscoelasticJacobian has wrong size. Resizing to 18x18\n";
+        Jac.resize(18,18);
     }
+    Jac.setZero(18,18);
 
     //build G_11
-    G_ij = smath->ident/dt + GM0/etaM * (smath->P_dev - sigd_curr * dmu_vM.transpose() / etaM);
-    Jac.block<6,6>(0,0) = G_ij;
+    Jac.block<6,6>(0,0) = smath->ident;
 
     //build G_12
-    G_ij = 2./dt * smath->ident;
-    Jac.block<6,6>(0,6) = G_ij;
+    Jac.block<6,6>(0,6) = 2. * smath->ident;
+
+    //build G_13
+    Jac.block<6,6>(0,12) = 2. * smath->ident;
 
     //build G_21
-    G_ij = -GM0/(2.*etaK0) * smath->P_dev;
-    Jac.block<6,6>(6,0) = G_ij;
+    Jac.block<6,6>(6,0) = -GM0/(2.*etaK0) * smath->P_dev;
 
     //build G_22
-    G_ij = (1./dt + GK0/etaK0) * smath->ident;
-    Jac.block<6,6>(6,6) = G_ij;
+    Jac.block<6,6>(6,6) = (1./dt + GK0/etaK0) * smath->ident;
 
+    //nothing to do for G_23
+
+    //build G_31
+    Jac.block<6,6>(12,0) = -GM0/(2.*etaM) * (smath->P_dev - sigd_curr * dmu_vM.transpose() / etaM);
+
+    //nothing to do for G_32
+
+    //build G_33
+    Jac.block<6,6>(12,12) = 1./dt * smath->ident;
 }
 
 /**************************************************************************
@@ -194,21 +202,18 @@ void SolidMinkley::CalViscoelasticJacobian(const double dt, const Eigen::Matrix<
    Programing:
    06/2015 TN Implementation
 **************************************************************************/
-void SolidMinkley::CaldGdE(const double dt, Eigen::Matrix<double,12,6> &dGdE)
+void SolidMinkley::CaldGdE(const double dt, Eigen::Matrix<double,18,6> &dGdE)
 {
-    Eigen::Matrix<double, 6, 6> dGdE_1;
-
-    dGdE_1 = -2./dt * smath->P_dev - 3./dt * KM0/GM0 * smath->P_sph;
 
     //Check Dimension of dGdE
-    if (dGdE.cols() != 6 || dGdE.rows() != 12)
+    if (dGdE.cols() != 6 || dGdE.rows() != 18)
     {
-        std::cout << "WARNING: dGdE given to SolidMinkley::CaldGdE has wrong size. Resizing to 12x6\n";
-        dGdE.resize(12,6);
+        std::cout << "WARNING: dGdE given to SolidMinkley::CaldGdE has wrong size. Resizing to 18x6\n";
+        dGdE.resize(18,6);
     }
 
-    dGdE.setZero(12,6);
-    dGdE.block<6,6>(0,0) = dGdE_1;
+    dGdE.setZero(18,6);
+    dGdE.block<6,6>(0,0) = -2. * smath->P_dev - 3./dt * KM0/GM0 * smath->P_sph;
 }
 
 /**************************************************************************

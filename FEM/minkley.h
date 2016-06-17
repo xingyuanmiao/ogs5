@@ -41,11 +41,11 @@ public:
     void UpdateMinkleyProperties(double s_eff, const double eps_p_eff, double Temperature);
     double YieldMohrCoulomb(const Eigen::Matrix<double,6,1> &sig);
     void CalViscoelasticResidual(const double dt, const Eigen::Matrix<double,6,1> &dstrain_curr, const double e_curr, const double e_p_curr,
-                                 const Eigen::Matrix<double,6,1> &stress_curr, Eigen::Matrix<double,6,1> &dstrain_Kel_curr,
-                                 const Eigen::Matrix<double,6,1> &dstrain_Kel_t, Eigen::Matrix<double,6,1> &dstrain_Max_curr,
+                                 const Eigen::Matrix<double,6,1> &stress_curr, const Eigen::Matrix<double,6,1> &dstrain_Kel_curr,
+                                 const Eigen::Matrix<double,6,1> &dstrain_Kel_t, const Eigen::Matrix<double,6,1> &dstrain_Max_curr,
                                  const Eigen::Matrix<double,6,1> &dstrain_Max_t, const Eigen::Matrix<double,6,1> &dstrain_p_curr, Eigen::Matrix<double,18,1> &res);
-    void CalViscoelasticJacobian(const double dt, const Eigen::Matrix<double,6,1> &stress_curr, const double sig_eff,Eigen::Matrix<double,12,12> &Jac);
-    void CaldGdE(const double dt, Eigen::Matrix<double,12,6> &dGdE);
+    void CalViscoelasticJacobian(const double dt, const Eigen::Matrix<double,6,1> &stress_curr, const double sig_eff,Eigen::Matrix<double,18,18> &Jac);
+    void CaldGdE(const double dt, Eigen::Matrix<double,18,6> &dGdE);
     void CalViscoplasticResidual(const double dt, const Eigen::Matrix<double,6,1> &dstrain_curr, const Eigen::Matrix<double,6,1> &dstrain_t,
                                           const double e_curr, const double e_t, const Eigen::Matrix<double,6,1> &stress_curr, const Eigen::Matrix<double,6,1> &stress_t,
                                           Eigen::Matrix<double,6,1> &dstrain_Kel_curr, const Eigen::Matrix<double,6,1> &dstrain_Kel_t,

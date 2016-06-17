@@ -1893,7 +1893,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
     const double e_pl_v_t = e_pl_v, e_pl_eff_t = e_pl_eff;
     //local residual vector and Jacobian
     Eigen::Matrix<double,18,1> res_loc, inc_loc;
-    Eigen::Matrix<double,12,12> K_loc;
+    Eigen::Matrix<double,18,18> K_loc;
     double sig_eff;
     Eigen::Matrix<double,6,6> dsigdE;
 
@@ -2007,7 +2007,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
     else
     {
         //dGdE matrix and dsigdE matrix
-        Eigen::Matrix<double,12,6> dGdE;
+        Eigen::Matrix<double,18,6> dGdE;
         //Calculate dGdE for time step
         material_minkley->CaldGdE(dt,dGdE);
         //get dsigdE matrix
