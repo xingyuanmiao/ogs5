@@ -1737,7 +1737,7 @@ void CSolidProperties::Kelvin_to_Voigt_Stress(const Eigen::Matrix<double,6,1> &k
 **************************************************************************/
 void CSolidProperties::ExtractConsistentTangent(const Eigen::MatrixXd &Jac, const Eigen::MatrixXd &dGdE, Eigen::Matrix<double,6,6> &dsigdE)
 {
-	const size_t local_dim(Jac.cols());
+    const unsigned int local_dim(Jac.cols());
 	//Matrix* dzdE;
 	//dzdE = new Matrix(local_dim,6);
 	//Check Dimensions
@@ -1881,18 +1881,18 @@ void CSolidProperties::LocalNewtonBurgers(const double dt, double* strain_curr,
    06/2015 TN Implementation
 **************************************************************************/
 void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, double* strain_t,
-                                          double* stress_curr, double* eps_K_curr, double* eps_pl_curr, double& e_pl_v,
+                                          double* stress_curr, double* eps_K_curr, double* eps_M_curr, double* eps_pl_curr, double& e_pl_v,
                                           double& e_pl_eff, double& lam, Matrix* Consistent_Tangent,bool Output, double Temperature)
 {
     CRFProcess* m_pcs  = PCSGet("DEFORMATION");
     //stress, strain, internal variable
-    Eigen::Matrix<double,6,1> eps_i, eps_t, sig_j, sig_t, eps_K_j, eps_K_t, eps_pl_j, eps_pl_t;
+    Eigen::Matrix<double,6,1> eps_i, eps_t, sig_j, sig_t, eps_K_j, eps_K_t, eps_M_j, eps_M_t, eps_pl_j, eps_pl_t;
     //deviatoric stress, strain
     Eigen::Matrix<double,6,1> epsd_i, epsd_t, sigd_j, sigd_t;
     double e_t, e_i, p_t, p_j;
     const double e_pl_v_t = e_pl_v, e_pl_eff_t = e_pl_eff;
     //local residual vector and Jacobian
-    Eigen::Matrix<double,12,1> res_loc, inc_loc;
+    Eigen::Matrix<double,18,1> res_loc, inc_loc;
     Eigen::Matrix<double,12,12> K_loc;
     double sig_eff;
     Eigen::Matrix<double,6,6> dsigdE;
@@ -1902,6 +1902,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
     eps_t = Voigt_to_Kelvin_Strain(strain_t);
     eps_i = Voigt_to_Kelvin_Strain(strain_curr);
     eps_K_t = eps_K_j = Voigt_to_Kelvin_Strain(eps_K_curr);
+    eps_M_t = eps_M_j = Voigt_to_Kelvin_Strain(eps_M_curr);
     eps_pl_t = eps_pl_j = Voigt_to_Kelvin_Strain(eps_pl_curr);
     sig_t = Voigt_to_Kelvin_Stress(stress_curr);
 
@@ -1925,7 +1926,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
     material_minkley->UpdateMinkleyProperties(sig_eff*material_minkley->GM0, e_pl_eff, Temperature);
 
     //initial evaluation of residual and Jacobian
-    material_minkley->CalViscoelasticResidual(dt,epsd_i,epsd_t,e_i,e_t,sig_j,sig_t,eps_K_j,eps_K_t,res_loc);
+    material_minkley->CalViscoelasticResidual(dt,epsd_i,e_i,e_pl_v,sig_j,eps_K_j,eps_K_t,eps_M_j,eps_M_t,eps_pl_j,res_loc);
     //initial evaluation of Jacobian
     material_minkley->CalViscoelasticJacobian(dt,sig_j,sig_eff,K_loc);
 
@@ -1954,7 +1955,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
         sig_eff = smath->CalEffectiveStress(smath->P_dev*sig_j);
         material_minkley->UpdateMinkleyProperties(sig_eff*material_minkley->GM0, e_pl_eff, Temperature);
         //evaluation of new residual
-        material_minkley->CalViscoelasticResidual(dt,epsd_i,epsd_t,e_i,e_t,sig_j,sig_t,eps_K_j,eps_K_t,res_loc);
+        material_minkley->CalViscoelasticResidual(dt,epsd_i,e_i,e_pl_v,sig_j,eps_K_j,eps_K_t,eps_M_j,eps_M_t,eps_pl_j,res_loc);
 //        if (Output){
 //        ofstream Dum("local.txt", ios::app);
 //        Dum << aktueller_zeitschritt << " " << m_pcs->GetIteSteps() << " " << counter+1 << " " << res_loc.norm() <<  " visco" << std::endl;

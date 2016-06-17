@@ -132,22 +132,20 @@ Eigen::Matrix<double,6,1> SolidMinkley::DetaM_Dsigma(double sig_eff, const Eigen
    Programing:
    06/2015 TN Implementation
 **************************************************************************/
-void SolidMinkley::CalViscoelasticResidual(const double dt, const Eigen::Matrix<double,6,1> &dstrain_curr, const Eigen::Matrix<double,6,1> &dstrain_t,
-                                      const double e_curr, const double e_t, const Eigen::Matrix<double,6,1> &stress_curr, const Eigen::Matrix<double,6,1> &stress_t,
-                                      Eigen::Matrix<double,6,1> &dstrain_Kel_curr, const Eigen::Matrix<double,6,1> &dstrain_Kel_t, Eigen::Matrix<double,12,1> &res)
+void SolidMinkley::CalViscoelasticResidual(const double dt, const Eigen::Matrix<double,6,1> &dstrain_curr, const double e_curr, const double e_p_curr,
+                                           const Eigen::Matrix<double,6,1> &stress_curr, Eigen::Matrix<double,6,1> &dstrain_Kel_curr,
+                                           const Eigen::Matrix<double,6,1> &dstrain_Kel_t, Eigen::Matrix<double,6,1> &dstrain_Max_curr,
+                                           const Eigen::Matrix<double,6,1> &dstrain_Max_t, const Eigen::Matrix<double,6,1> &dstrain_p_curr,
+                                           Eigen::Matrix<double,18,1> &res)
 {
-    Eigen::VectorXd G_j(6);
-    Eigen::VectorXd deps_K_dt_i(6);
-    const Eigen::Matrix<double,6,1> sigd_curr(smath->P_dev*stress_curr);
-    deps_K_dt_i = 1./(2.*etaK0) * (GM0*sigd_curr - 2.*GK0*dstrain_Kel_curr);
+    const Eigen::Matrix<double,6,1> dstress_curr(GM0*smath->P_dev*stress_curr);
 
     //calculate stress residual
-    G_j = (stress_curr - stress_t)/dt -
-            (2. * ((dstrain_curr - dstrain_t)/dt - (dstrain_Kel_curr - dstrain_Kel_t)/dt - GM0/(2.*etaM)*sigd_curr) + KM0/GM0 * (e_curr - e_t)/dt * smath->ivec);
-    res.block<6,1>(0,0) = G_j;
+    res.block<6,1>(0,0) = stress_curr -(2. * (dstrain_curr - dstrain_Kel_curr - dstrain_Max_curr - dstrain_p_curr) + KM0/GM0 * (e_curr - e_p_curr) * smath->ivec);
     //calculate Kelvin strain residual
-    G_j = (dstrain_Kel_curr - dstrain_Kel_t)/dt - deps_K_dt_i;
-    res.block<6,1>(6,0) = G_j;
+    res.block<6,1>(6,0) = (dstrain_Kel_curr - dstrain_Kel_t)/dt - 1./(2.*etaK0) * (dstress_curr- 2.*GK0*dstrain_Kel_curr);
+    //calculate Kelvin strain residual
+    res.block<6,1>(12,0) = (dstrain_Max_curr - dstrain_Max_t)/dt - 1./(2.*etaM) * dstress_curr;
 }
 
 
