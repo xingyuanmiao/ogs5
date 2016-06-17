@@ -1,4 +1,5 @@
 #include "burgers.h"
+#include "PhysicalConstant.h"
 namespace Burgers{
 
 SolidBurgers::SolidBurgers(const Matrix* data)
@@ -44,7 +45,7 @@ void SolidBurgers::UpdateBurgersProperties(const double s_eff, const double Temp
 	KM = KM0 + m_KM*dT;
 	GK = GK0 * std::exp(mK * s_eff);
 	etaK = etaK0 * std::exp(mvK * s_eff);
-    etaM = etaM0 * std::exp(mvM * s_eff) * B * std::exp(Q/(8.314472*Temperature));
+    etaM = etaM0 * std::exp(mvM * s_eff) * B * std::exp(Q/(PhysicalConstant::IdealGasConstant*Temperature));
 }
 
 /**************************************************************************
