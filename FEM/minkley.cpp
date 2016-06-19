@@ -310,7 +310,7 @@ void SolidMinkley::CalViscoplasticResidual(const double dt, const Eigen::Matrix<
     res.block<6,1>(6,0) = (dstrain_Kel_curr - dstrain_Kel_t)/dt - deps_K_dt_i;
 
     //calculate deviatoric Maxwell strain residual
-    res.block<6,1>(2,0) = (dstrain_Max_curr - dstrain_Max_t)/dt - 1./(2.*etaM) * sigd_curr;
+    res.block<6,1>(12,0) = (dstrain_Max_curr - dstrain_Max_t)/dt - 1./(2.*etaM) * sigd_curr;
 
     //calculate deviatoric plastic strain residual
     res.block<6,1>(18,0) = (dstrain_pl_curr - dstrain_pl_t)/dt - lam_curr * dev_flow;
