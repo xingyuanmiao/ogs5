@@ -283,16 +283,13 @@ double SolidMinkley::Dtheta_DJ3(const double theta, const double J3)
    Programing:
    06/2015 TN Implementation
 **************************************************************************/
-void SolidMinkley::CalViscoplasticResidual(const double dt, const Eigen::Matrix<double,6,1> &dstrain_curr, const Eigen::Matrix<double,6,1> &dstrain_t,
-                                      const double e_curr, const double e_t, const Eigen::Matrix<double,6,1> &stress_curr, const Eigen::Matrix<double,6,1> &stress_t,
-                                      Eigen::Matrix<double,6,1> &dstrain_Kel_curr, const Eigen::Matrix<double,6,1> &dstrain_Kel_t,
-                                      Eigen::Matrix<double,6,1> &dstrain_pl_curr, const Eigen::Matrix<double,6,1> &dstrain_pl_t,
-                                      const double e_pl_vol_curr, const double e_pl_vol_t, const double e_pl_eff_curr, const double e_pl_eff_t,
-                                      const double lam_curr, Eigen::Matrix<double,21,1> &res)
+void SolidMinkley::CalViscoplasticResidual(const double dt, const Eigen::Matrix<double,6,1> &dstrain_curr, const double e_curr, const double e_p_curr,
+                                           const Eigen::Matrix<double,6,1> &stress_curr, const Eigen::Matrix<double,6,1> &dstrain_Kel_curr,
+                                           const Eigen::Matrix<double,6,1> &dstrain_Kel_t, const Eigen::Matrix<double,6,1> &dstrain_Max_curr,
+                                           const Eigen::Matrix<double,6,1> &dstrain_Max_t, const Eigen::Matrix<double,6,1> &dstrain_pl_curr,
+                                           const Eigen::Matrix<double,6,1> &dstrain_pl_t, const double e_pl_vol_curr, const double e_pl_vol_t,
+                                           const double e_pl_eff_curr, const double e_pl_eff_t, const double lam_curr, Eigen::Matrix<double,27,1> &res)
 {
-    Eigen::VectorXd G_6(6), G_1(1);
-    Eigen::VectorXd dev_flow(6);
-
     const Eigen::Matrix<double,6,1> sigd_curr(smath->P_dev*stress_curr);
     const double J_2(smath->CalJ2(sigd_curr*GM0)), J_3(smath->CalJ3(sigd_curr*GM0)), theta(smath->CalLodeAngle(sigd_curr*GM0));
     const Eigen::Matrix<double,6,1> deps_K_dt_i(1./(2.*etaK0) * (GM0*sigd_curr - 2.*GK0*dstrain_Kel_curr));
@@ -305,30 +302,26 @@ void SolidMinkley::CalViscoplasticResidual(const double dt, const Eigen::Matrix<
                 (DG_Dtheta(theta,J_2,psi) * Dtheta_DJ3(theta,J_3) * J_3) * dev_sigd_curr_inv;
 
     //calculate stress residual
-    G_6 = (stress_curr - stress_t)/dt -
-            (2. * ((dstrain_curr - dstrain_t)/dt - (dstrain_Kel_curr - dstrain_Kel_t)/dt - (dstrain_pl_curr - dstrain_pl_t)/dt -
-            GM0/(2.*etaM)*sigd_curr) + KM0/GM0 * ((e_curr - e_t) - (e_pl_vol_curr - e_pl_vol_t))/dt * smath->ivec);
-    res.block<6,1>(0,0) = G_6;
+    res.block<6,1>(0,0) = stress_curr - (2. * (dstrain_curr - dstrain_Kel_curr - dstrain_Max_curr - dstrain_pl_curr) +
+                                         KM0/GM0 * (e_curr - e_pl_vol_curr) * smath->ivec);
 
     //calculate deviatoric Kelvin strain residual
-    G_6 = (dstrain_Kel_curr - dstrain_Kel_t)/dt - deps_K_dt_i;
-    res.block<6,1>(6,0) = G_6;
+    res.block<6,1>(6,0) = (dstrain_Kel_curr - dstrain_Kel_t)/dt - deps_K_dt_i;
+
+    //calculate deviatoric Maxwell strain residual
+    res.block<6,1>(2,0) = (dstrain_Max_curr - dstrain_Max_t)/dt - 1./(2.*etaM) * dstress_curr;
 
     //calculate deviatoric plastic strain residual
-    G_6 = (dstrain_pl_curr - dstrain_pl_t)/dt - lam_curr * dev_flow;
-    res.block<6,1>(12,0) = G_6;
+    res.block<6,1>(18,0) = (dstrain_pl_curr - dstrain_pl_t)/dt - lam_curr * dev_flow;
 
     //calculate volumetric plastic strain residual
-    G_1(0) = (e_pl_vol_curr - e_pl_vol_t)/dt - lam_curr * vol_flow;
-    res.block<1,1>(18,0) = G_1;
+    res.block<1,1>(24,0) = (e_pl_vol_curr - e_pl_vol_t)/dt - lam_curr * vol_flow;
 
     //calculate effective plastic strain residual
-    G_1(0) = (e_pl_eff_curr - e_pl_eff_t)/dt - std::sqrt(2./3. * lam_curr * lam_curr * (double)(dev_flow.transpose() * dev_flow));
-    res.block<1,1>(19,0) = G_1;
+    res.block<1,1>(25,0) = (e_pl_eff_curr - e_pl_eff_t)/dt - std::sqrt(2./3. * lam_curr * lam_curr * (double)(dev_flow.transpose() * dev_flow));
 
     //yield function with viscoplastic regularisation
-    G_1(0) = YieldMohrCoulomb(stress_curr * GM0)/GM0 - lam_curr * eta_reg;
-    res.block<1,1>(20,0) = G_1;
+    res.block<1,1>(26,0) = YieldMohrCoulomb(stress_curr * GM0)/GM0 - lam_curr * eta_reg;
 }
 
 /**************************************************************************
