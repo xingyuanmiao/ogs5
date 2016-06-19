@@ -474,7 +474,7 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
     //Check Dimension of Jacobian
     if (Jac.cols() != 27 || Jac.rows() != 27)
     {
-        std::cout << "WARNING: Jacobian given to SolidMinkley::CalViscoplasticJacobian has wrong size. Resizing to 21x21\n";
+        std::cout << "WARNING: Jacobian given to SolidMinkley::CalViscoplasticJacobian has wrong size. Resizing to 27x27\n";
         Jac.resize(27,27);
     }
     Jac.setZero(27,27);
@@ -603,21 +603,17 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
    Programing:
    06/2015 TN Implementation
 **************************************************************************/
-void SolidMinkley::CalEPdGdE(const double dt, Eigen::Matrix<double,21,6> &dGdE)
+void SolidMinkley::CalEPdGdE(const double dt, Eigen::Matrix<double,27,6> &dGdE)
 {
-    Eigen::Matrix<double, 6, 6> dGdE_1;
-
-    dGdE_1 = -2./dt * smath->P_dev - 3./dt * KM0/GM0 * smath->P_sph;
-
     //Check Dimension of dGdE
-    if (dGdE.cols() != 6 || dGdE.rows() != 21)
+    if (dGdE.cols() != 6 || dGdE.rows() != 27)
     {
-        std::cout << "WARNING: dGdE given to SolidMinkley::CalEPdGdE has wrong size. Resizing to 21x6\n";
-        dGdE.resize(21,6);
+        std::cout << "WARNING: dGdE given to SolidMinkley::CalEPdGdE has wrong size. Resizing to 27x6\n";
+        dGdE.resize(27,6);
     }
 
-    dGdE.setZero(21,6);
-    dGdE.block<6,6>(0,0) = dGdE_1;
+    dGdE.setZero(27,6);
+    dGdE.block<6,6>(0,0) = -2. * smath->P_dev - 3./dt * KM0/GM0 * smath->P_sph;
 }
 
 } //namespace Minkley ends
