@@ -457,11 +457,9 @@ double SolidMinkley::DDtheta_DDJ3(const double theta, const double J3)
    06/2015 TN Implementation
 **************************************************************************/
 void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<double,6,1> &stress_curr, const double sig_eff,
-                                           const double lam_curr, Eigen::Matrix<double,21,21> &Jac)
+                                           const double lam_curr, Eigen::Matrix<double,27,27> &Jac)
 {
     //submatrices of the Jacobian
-    //TODO: Instead of using single sumatrices three suffice and can be sorted in directly after assembly
-    Eigen::MatrixXd G_66(6,6), G_61(6,1), G_16(1,6), G_11(1,1);
     const Eigen::Matrix<double,6,1> sigd_curr(smath->P_dev*stress_curr);
     const double J_2(smath->CalJ2(sigd_curr*GM0)), J_3(smath->CalJ3(sigd_curr*GM0)), theta(smath->CalLodeAngle(sigd_curr*GM0));
     const Eigen::Matrix<double,6,1> sigd_curr_inv(smath->InvertVector(sigd_curr * GM0));
@@ -474,11 +472,12 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
     const double DthetaDJ3(Dtheta_DJ3(theta,J_3));
 
     //Check Dimension of Jacobian
-    if (Jac.cols() != 21 || Jac.rows() != 21)
+    if (Jac.cols() != 27 || Jac.rows() != 27)
     {
         std::cout << "WARNING: Jacobian given to SolidMinkley::CalViscoplasticJacobian has wrong size. Resizing to 21x21\n";
-        Jac.resize(21,21);
+        Jac.resize(27,27);
     }
+    Jac.setZero(27,27);
 
     if (std::abs(J_3) < DBL_EPSILON)
     {
@@ -508,73 +507,71 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
 
     const double eff_flow = std::sqrt(2./3. * lam_curr * lam_curr * (double)(dev_flow.transpose()*dev_flow));
 
-    Jac.setZero(21,21);
     //build G_11
-    G_66 = smath->ident/dt + GM0/etaM * (smath->P_dev - sigd_curr * dmu_vM.transpose() / etaM);
-    Jac.block<6,6>(0,0) = G_66;
+    //G_66 = smath->ident/dt +
+    Jac.block<6,6>(0,0) = smath->ident;
 
-    //build G_12 and G_13
-    G_66 = 2./dt * smath->ident;
-    Jac.block<6,6>(0,6) = G_66;
-    Jac.block<6,6>(0,12) = G_66;
+    //build G_12, G_13 and G_14
+    Jac.block<6,6>(0,6) = 2. * smath->ident;
+    Jac.block<6,6>(0,12) = 2. * smath->ident;
+    Jac.block<6,6>(0,18) = 2. * smath->ident;
 
-    //build G_14
-    G_61 = KM0/(GM0 * dt) * smath->ivec;
-    Jac.block<6,1>(0,18) = G_61;
+    //build G_15
+    Jac.block<6,1>(0,18) = KM0/GM0 * smath->ivec;
 
-    //G_15 and G_16 remain zeros and are not set separately
+    //G_16 and G_17 remain zeros and are not set separately
 
     //build G_21
-    G_66 = -GM0/(2.*etaK0) * smath->P_dev;
-    Jac.block<6,6>(6,0) = G_66;
+    Jac.block<6,6>(6,0) = -GM0/(2.*etaK0) * smath->P_dev;
 
     //build G_22
-    G_66 = (1./dt + GK0/etaK0) * smath->ident;
-    Jac.block<6,6>(6,6) = G_66;
+    Jac.block<6,6>(6,6) = (1./dt + GK0/etaK0) * smath->ident;
 
-    //G_23 through G_26 are zero
+    //G_23 through G_27 are zero
 
     //build G_31
-    G_66 = - lam_curr * Ddev_flowDsigma;
-    Jac.block<6,6>(12,0) = G_66;
+    Jac.blox<6,6>(12,0) = -GM0/(2.*etaM) * (smath->P_dev - sigd_curr * dmu_vM.transpose() / etaM);
 
-    //build G_32 is zero
+    //G_32 is 0
 
-    //build G_33
-    G_66 = smath->ident/dt;
-    Jac.block<6,6>(12,12) = G_66;
+    //G_33
+    Jac.blox<6,6>(12,12) = 1./dt * smath->ident;
 
-    //G_34 and G_35 are zero
+    //G_34 through G_37 are zero
 
-    //build G_36
-    G_61 = -dev_flow;
-    Jac.block<6,1>(12,20) = G_61;
+    //G_41
+    Jac.block<6,6>(18,0) = - lam_curr * Ddev_flowDsigma;
 
-    //G_41 to G_43 are zero
+    //build G_42 and G_43 are zero
 
     //build G_44
-    G_11(0) = 1./dt;
-    Jac.block<1,1>(18,18) = G_11;
+    Jac.block<6,6>(18,18) = smath->ident/dt;
 
-    //G_45 is zero
+    //G_45 and G_45 are zero
 
-    //G_46
-    G_11(0) = -vol_flow;
-    Jac.block<1,1>(18,20) = G_11;
+    //build G_47
+    Jac.block<6,1>(18,26) = -dev_flow;
 
-    //Conditional build of G_51 und G_56
-    if (std::abs(eff_flow) > DBL_EPSILON)
-    {
-        G_16 = -2. * lam_curr*lam_curr/(3.*eff_flow) * dev_flow.transpose() * Ddev_flowDsigma.transpose();
-        G_11(0) = -2./(3.*eff_flow) * std::abs(lam_curr) * (double)(dev_flow.transpose()*dev_flow);
-        Jac.block<1,6>(19,0) = G_16;
-        Jac.block<1,1>(19,20) = G_11;
-    }
-    //G_52 to G_54 are zero
+    //G_51 to G_54 are zero
 
     //build G_55
-    G_11(0) = 1./dt;
-    Jac.block<1,1>(19,19) = G_11;
+    Jac.block<1,1>(24,24) = 1./dt;
+
+    //G_56 is zero
+
+    //G_57
+    Jac.block<1,1>(24,26) = -vol_flow;
+
+    //Conditional build of G_61 und G_67
+    if (std::abs(eff_flow) > DBL_EPSILON)
+    {
+        Jac.block<1,6>(25,0) = -2. * lam_curr*lam_curr/(3.*eff_flow) * dev_flow.transpose() * Ddev_flowDsigma.transpose();
+        Jac.block<1,1>(25,26) = -2./(3.*eff_flow) * std::abs(lam_curr) * (double)(dev_flow.transpose()*dev_flow);
+    }
+    //G_62 to G_64 and G_66 are zero
+
+    //build G_65
+    Jac.block<1,1>(25,25) = 1./dt;
 
     //Yield surface derivatives
     if (std::abs(J_3) < DBL_EPSILON)
@@ -587,19 +584,16 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
                 (DG_Dtheta(theta,J_2,phi) * DthetaDJ3 * J_3) * dev_sigd_curr_inv;
     }
 
-    //build G_61
-    G_16 = (DG_DI1(phi) * smath->ivec + dev_flow).transpose();
-    Jac.block<1,6>(20,0) = G_16;
+    //build G_71
+    Jac.block<1,6>(26,0) = (DG_DI1(phi) * smath->ivec + dev_flow).transpose();
 
-    //G_62 - G_64 zero
+    //G_72 - G_75 zero
 
-    //build G_65
-    G_11(0) = -coh0 * hard * std::cos(phi) / GM0;
-    Jac.block<1,1>(20,19) = G_11;
+    //build G_76
+    Jac.block<1,1>(26,25) = -coh0 * hard * std::cos(phi) / GM0;
 
-    //build G_66
-    G_11(0) = -eta_reg;
-    Jac.block<1,1>(20,20) = G_11;
+    //build G_77
+    Jac.block<1,1>(26,26) = -eta_reg;
 
 }
 
