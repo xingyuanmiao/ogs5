@@ -518,7 +518,7 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
     Jac.block<6,6>(0,18) = 2. * smath->ident;
 
     //build G_15
-    Jac.block<6,1>(0,18) = KM0/GM0 * smath->ivec;
+    Jac.block<6,1>(0,24) = KM0/GM0 * smath->ivec;
 
     //G_16 and G_17 remain zeros and are not set separately
 
@@ -569,9 +569,9 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
         Jac.block<1,6>(25,0) = -2. * lam_curr*lam_curr/(3.*eff_flow) * dev_flow.transpose() * Ddev_flowDsigma.transpose();
         Jac.block<1,1>(25,26)(0) = -2./(3.*eff_flow) * std::abs(lam_curr) * (double)(dev_flow.transpose()*dev_flow);
     }
-    //G_62 to G_64 and G_66 are zero
+    //G_62 to G_64 and G_65 are zero
 
-    //build G_65
+    //build G_66
     Jac.block<1,1>(25,25)(0) = 1./dt;
 
     //Yield surface derivatives
