@@ -2025,7 +2025,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
     Kelvin_to_Voigt_Stress(sig_j,stress_curr);
     Kelvin_to_Voigt_Strain(eps_K_j,eps_K_curr);
     Kelvin_to_Voigt_Strain(eps_M_j,eps_M_curr);
-    Kelvin_to_Voigt_Strain(eps_pl_j,eps_pl_curr);
+    //plastic strain dealt with further up
     for (size_t i=0; i<3; i++)
     {
         for (size_t j=0; j<3; j++){

@@ -453,7 +453,7 @@ double SolidMinkley::DDtheta_DDJ3(const double theta, const double J3)
 
 /**************************************************************************
    FEMLib-Method: Minkley::CalViscoplasticJacobian()
-   Task: Calculates the 21x21 Jacobian matrix. Implementation fully implicit only.
+   Task: Calculates the 27x27 Jacobian matrix. Implementation fully implicit only.
    Programing:
    06/2015 TN Implementation
 **************************************************************************/
