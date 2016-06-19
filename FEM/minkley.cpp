@@ -316,13 +316,13 @@ void SolidMinkley::CalViscoplasticResidual(const double dt, const Eigen::Matrix<
     res.block<6,1>(18,0) = (dstrain_pl_curr - dstrain_pl_t)/dt - lam_curr * dev_flow;
 
     //calculate volumetric plastic strain residual
-    res.block<1,1>(24,0) = Eigen::Matrix<double,1,1>((e_pl_vol_curr - e_pl_vol_t)/dt - lam_curr * vol_flow);
+    res.block<1,1>(24,0)(0) = (e_pl_vol_curr - e_pl_vol_t)/dt - lam_curr * vol_flow;
 
     //calculate effective plastic strain residual
-    res.block<1,1>(25,0) = Eigen::Matrix<double,1,1>((e_pl_eff_curr - e_pl_eff_t)/dt - std::sqrt(2./3. * lam_curr * lam_curr * (double)(dev_flow.transpose() * dev_flow)));
+    res.block<1,1>(25,0)(0) = (e_pl_eff_curr - e_pl_eff_t)/dt - std::sqrt(2./3. * lam_curr * lam_curr * (double)(dev_flow.transpose() * dev_flow));
 
     //yield function with viscoplastic regularisation
-    res.block<1,1>(26,0) = Eigen::Matrix<double,1,1>(YieldMohrCoulomb(stress_curr * GM0)/GM0 - lam_curr * eta_reg);
+    res.block<1,1>(26,0)(0) = YieldMohrCoulomb(stress_curr * GM0)/GM0 - lam_curr * eta_reg;
 }
 
 /**************************************************************************
@@ -556,23 +556,23 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
     //G_51 to G_54 are zero
 
     //build G_55
-    Jac.block<1,1>(24,24) = Eigen::Matrix<double,1,1>(1./dt);
+    Jac.block<1,1>(24,24)(0) = 1./dt;
 
     //G_56 is zero
 
     //G_57
-    Jac.block<1,1>(24,26) = Eigen::Matrix<double,1,1>(-vol_flow);
+    Jac.block<1,1>(24,26)(0) = -vol_flow;
 
     //Conditional build of G_61 und G_67
     if (std::abs(eff_flow) > DBL_EPSILON)
     {
         Jac.block<1,6>(25,0) = -2. * lam_curr*lam_curr/(3.*eff_flow) * dev_flow.transpose() * Ddev_flowDsigma.transpose();
-        Jac.block<1,1>(25,26) = Eigen::Matrix<double,1,1>(-2./(3.*eff_flow) * std::abs(lam_curr) * (double)(dev_flow.transpose()*dev_flow));
+        Jac.block<1,1>(25,26)(0) = -2./(3.*eff_flow) * std::abs(lam_curr) * (double)(dev_flow.transpose()*dev_flow);
     }
     //G_62 to G_64 and G_66 are zero
 
     //build G_65
-    Jac.block<1,1>(25,25) = Eigen::Matrix<double,1,1>(1./dt);
+    Jac.block<1,1>(25,25)(0) = 1./dt;
 
     //Yield surface derivatives
     if (std::abs(J_3) < DBL_EPSILON)
@@ -591,10 +591,10 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
     //G_72 - G_75 zero
 
     //build G_76
-    Jac.block<1,1>(26,25) = Eigen::Matrix<double,1,1>(-coh0 * hard * std::cos(phi) / GM0);
+    Jac.block<1,1>(26,25)(0) = -coh0 * hard * std::cos(phi) / GM0;
 
     //build G_77
-    Jac.block<1,1>(26,26) = Eigen::Matrix<double,1,1>(-eta_reg);
+    Jac.block<1,1>(26,26)(0) = -eta_reg;
 
 }
 
