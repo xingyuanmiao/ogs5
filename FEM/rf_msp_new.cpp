@@ -1965,9 +1965,10 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
     }
     if (!(material_minkley->YieldMohrCoulomb(sig_j*material_minkley->GM0) < local_tolerance))
     {
-        Eigen::Matrix<double,21,1> res_loc_p, inc_loc_p;
-        Eigen::Matrix<double,21,21> K_loc_p;
-        material_minkley->CalViscoplasticResidual(dt,epsd_i,epsd_t,e_i,e_t,sig_j,sig_t,eps_K_j,eps_K_t,eps_pl_j,eps_pl_t,
+        Eigen::Matrix<double,27,1> res_loc_p, inc_loc_p;
+        Eigen::Matrix<double,27,27> K_loc_p;
+
+        material_minkley->CalViscoplasticResidual(dt,epsd_i,e_i,sig_j,eps_K_j,eps_K_t,eps_M_j,eps_M_t,eps_pl_j,eps_pl_t,
                                                   e_pl_v,e_pl_v_t,e_pl_eff,e_pl_eff_t,lam,res_loc_p);
         material_minkley->CalViscoplasticJacobian(dt,sig_j,sig_eff,lam,K_loc_p);
 
@@ -1981,15 +1982,16 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
             //increment solution vectors
             sig_j += inc_loc_p.block<6,1>(0,0);
             eps_K_j += inc_loc_p.block<6,1>(6,0);
-            eps_pl_j += inc_loc_p.block<6,1>(12,0);
-            e_pl_v += inc_loc_p.block<1,1>(18,0)(0);
-            e_pl_eff += inc_loc_p.block<1,1>(19,0)(0);
-            lam += inc_loc_p.block<1,1>(20,0)(0);
+            eps_M_j += inc_loc.block<6,1>(12,0);
+            eps_pl_j += inc_loc_p.block<6,1>(18,0);
+            e_pl_v += inc_loc_p.block<1,1>(24,0)(0);
+            e_pl_eff += inc_loc_p.block<1,1>(25,0)(0);
+            lam += inc_loc_p.block<1,1>(26,0)(0);
             //Calculate effective stress and update material properties
             sig_eff = smath->CalEffectiveStress(smath->P_dev*sig_j);
             material_minkley->UpdateMinkleyProperties(sig_eff*material_minkley->GM0, e_pl_eff, Temperature);
             //evaluation of new residual
-            material_minkley->CalViscoplasticResidual(dt,epsd_i,epsd_t,e_i,e_t,sig_j,sig_t,eps_K_j,eps_K_t,eps_pl_j,eps_pl_t,
+            material_minkley->CalViscoplasticResidual(dt,epsd_i,e_i,sig_j,eps_K_j,eps_K_t,eps_M_j,eps_M_t,eps_pl_j,eps_pl_t,
                                                       e_pl_v,e_pl_v_t,e_pl_eff,e_pl_eff_t,lam,res_loc_p);
 //            if (Output){
 //            ofstream Dum("local.txt", ios::app);
@@ -1998,7 +2000,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
 //            }
         }
         //dGdE matrix and dsigdE matrix
-        Eigen::Matrix<double,21,6> dGdE;
+        Eigen::Matrix<double,27,6> dGdE;
         Kelvin_to_Voigt_Strain(eps_pl_j,eps_pl_curr);
         //Calculate dGdE for time step
         material_minkley->CalEPdGdE(dt,dGdE);
