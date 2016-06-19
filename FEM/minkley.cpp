@@ -283,7 +283,7 @@ double SolidMinkley::Dtheta_DJ3(const double theta, const double J3)
    Programing:
    06/2015 TN Implementation
 **************************************************************************/
-void SolidMinkley::CalViscoplasticResidual(const double dt, const Eigen::Matrix<double,6,1> &dstrain_curr, const double e_curr, const double e_p_curr,
+void SolidMinkley::CalViscoplasticResidual(const double dt, const Eigen::Matrix<double,6,1> &dstrain_curr, const double e_curr,
                                            const Eigen::Matrix<double,6,1> &stress_curr, const Eigen::Matrix<double,6,1> &dstrain_Kel_curr,
                                            const Eigen::Matrix<double,6,1> &dstrain_Kel_t, const Eigen::Matrix<double,6,1> &dstrain_Max_curr,
                                            const Eigen::Matrix<double,6,1> &dstrain_Max_t, const Eigen::Matrix<double,6,1> &dstrain_pl_curr,
