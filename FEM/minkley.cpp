@@ -119,9 +119,9 @@ double SolidMinkley::YieldMohrCoulomb(const Eigen::Matrix<double,6,1> &sig)
 Eigen::Matrix<double,6,1> SolidMinkley::DetaM_Dsigma(double sig_eff, const Eigen::Matrix<double,6,1> &sigd_i)
 {
     Eigen::Matrix<double,6,1> res;
-    sig_eff = std::max(sig_eff,DBL_EPSILON);
-    res = 3./(2.*sig_eff) * sigd_i * GM0;
-    res *= - etaM0 * mvM * nvM * std::pow(sig_eff,nvM-1.) /
+    sig_eff = std::max(sig_eff,DBL_EPSILON); //TODO: clean up the epsilon mess
+    res = 3./2. * sigd_i * GM0; //sig_eff in denominator lumped into pow function (-2 instead of -1)
+    res *= - etaM0 * mvM * nvM * std::pow(sig_eff,nvM-2.) /
         (std::tanh(mvM * std::pow(sig_eff,nvM)) * std::sinh(mvM * std::pow(sig_eff,nvM)));
     return res;
 }
@@ -292,7 +292,6 @@ void SolidMinkley::CalViscoplasticResidual(const double dt, const Eigen::Matrix<
 {
     const Eigen::Matrix<double,6,1> sigd_curr(GM0 *smath->P_dev*stress_curr);
     const double J_2(smath->CalJ2(sigd_curr)), J_3(smath->CalJ3(sigd_curr)), theta(smath->CalLodeAngle(sigd_curr));
-    const Eigen::Matrix<double,6,1> deps_K_dt_i(1./(2.*etaK0) * (sigd_curr - 2.*GK0*dstrain_Kel_curr));
     const Eigen::Matrix<double,6,1> dev_sigd_curr_inv (smath->P_dev * smath->InvertVector(sigd_curr));
     const double vol_flow(3. * DG_DI1(psi));
 
@@ -307,7 +306,7 @@ void SolidMinkley::CalViscoplasticResidual(const double dt, const Eigen::Matrix<
                                          KM0/GM0 * (e_curr - e_pl_vol_curr) * smath->ivec);
 
     //calculate deviatoric Kelvin strain residual
-    res.block<6,1>(6,0) = (dstrain_Kel_curr - dstrain_Kel_t)/dt - deps_K_dt_i;
+    res.block<6,1>(6,0) = (dstrain_Kel_curr - dstrain_Kel_t)/dt - 1./(2.*etaK0) * (sigd_curr - 2.*GK0*dstrain_Kel_curr);
 
     //calculate deviatoric Maxwell strain residual
     res.block<6,1>(12,0) = (dstrain_Max_curr - dstrain_Max_t)/dt - 1./(2.*etaM) * sigd_curr;
@@ -461,7 +460,7 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
                                            const double lam_curr, Eigen::Matrix<double,27,27> &Jac)
 {
     //submatrices of the Jacobian
-    const Eigen::Matrix<double,6,1> sigd_curr(GMO*smath->P_dev*stress_curr);
+    const Eigen::Matrix<double,6,1> sigd_curr(GM0*smath->P_dev*stress_curr);
     const double J_2(smath->CalJ2(sigd_curr)), J_3(smath->CalJ3(sigd_curr)), theta(smath->CalLodeAngle(sigd_curr));
     const Eigen::Matrix<double,6,1> sigd_curr_inv(smath->InvertVector(sigd_curr));
     const Eigen::Matrix<double,6,1> dev_sigd_curr_inv (smath->P_dev * sigd_curr_inv);
@@ -536,7 +535,7 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
     //G_32 is 0
 
     //G_33
-    Jac.block<6,6>(12,12) = 1./dt * smath->ident;
+    Jac.block<6,6>(12,12) = smath->ident/dt;
 
     //G_34 through G_37 are zero
 
@@ -564,9 +563,9 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
     Jac.block<1,1>(24,26)(0) = -vol_flow;
 
     //Conditional build of G_61 und G_67
-    if (std::abs(eff_flow) > DBL_EPSILON)
+    if (std::abs(eff_flow) > 0.)
     {
-        Jac.block<1,6>(25,0) = -2. * lam_curr*lam_curr/(3.*eff_flow) * dev_flow * Ddev_flowDsigma;
+        Jac.block<1,6>(25,0) = -2. * lam_curr*lam_curr/(3.*eff_flow) * dev_flow.transpose() * Ddev_flowDsigma.transpose();
         Jac.block<1,1>(25,26)(0) = -2./(3.*eff_flow) * std::abs(lam_curr) * (double)(dev_flow.transpose()*dev_flow);
     }
     //G_62 to G_64 and G_65 are zero
@@ -575,14 +574,14 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
     Jac.block<1,1>(25,25)(0) = 1./dt;
 
     //Yield surface derivatives
-    if (std::abs(J_3) < DBL_EPSILON)
-    {
-        dev_flow.Zero(6,1);
-    }
-    else
+    if (std::abs(J_3) > 0.)
     {
         dev_flow = (DG_DJ2(theta,J_2,phi) + DG_Dtheta(theta,J_2,phi) * DthetaDJ2)*sigd_curr +
                 (DG_Dtheta(theta,J_2,phi) * DthetaDJ3 * J_3) * dev_sigd_curr_inv;
+    }
+    else
+    {
+        dev_flow.Zero(6,1);
     }
 
     //build G_71
