@@ -290,16 +290,16 @@ void SolidMinkley::CalViscoplasticResidual(const double dt, const Eigen::Matrix<
                                            const Eigen::Matrix<double,6,1> &dstrain_pl_t, const double e_pl_vol_curr, const double e_pl_vol_t,
                                            const double e_pl_eff_curr, const double e_pl_eff_t, const double lam_curr, Eigen::Matrix<double,27,1> &res)
 {
-    const Eigen::Matrix<double,6,1> sigd_curr(smath->P_dev*stress_curr);
-    const double J_2(smath->CalJ2(sigd_curr*GM0)), J_3(smath->CalJ3(sigd_curr*GM0)), theta(smath->CalLodeAngle(sigd_curr*GM0));
-    const Eigen::Matrix<double,6,1> deps_K_dt_i(1./(2.*etaK0) * (GM0*sigd_curr - 2.*GK0*dstrain_Kel_curr));
-    const Eigen::Matrix<double,6,1> dev_sigd_curr_inv (smath->P_dev * smath->InvertVector(sigd_curr * GM0));
+    const Eigen::Matrix<double,6,1> sigd_curr(GM0 *smath->P_dev*stress_curr);
+    const double J_2(smath->CalJ2(sigd_curr)), J_3(smath->CalJ3(sigd_curr)), theta(smath->CalLodeAngle(sigd_curr));
+    const Eigen::Matrix<double,6,1> deps_K_dt_i(1./(2.*etaK0) * (GM0 - 2.*GK0*dstrain_Kel_curr));
+    const Eigen::Matrix<double,6,1> dev_sigd_curr_inv (smath->P_dev * smath->InvertVector(sigd_curr));
     const double vol_flow(3. * DG_DI1(psi));
 
     Eigen::Matrix<double,6,1> dev_flow;
     dev_flow.setZero(6);
     if (std::abs(J_3) > DBL_EPSILON)
-        dev_flow = (DG_DJ2(theta,J_2,psi) + DG_Dtheta(theta,J_2,psi) * Dtheta_DJ2(theta,J_2))*GM0 * sigd_curr +
+        dev_flow = (DG_DJ2(theta,J_2,psi) + DG_Dtheta(theta,J_2,psi) * Dtheta_DJ2(theta,J_2))* sigd_curr +
                 (DG_Dtheta(theta,J_2,psi) * Dtheta_DJ3(theta,J_3) * J_3) * dev_sigd_curr_inv;
 
     //calculate stress residual
@@ -461,12 +461,12 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
                                            const double lam_curr, Eigen::Matrix<double,27,27> &Jac)
 {
     //submatrices of the Jacobian
-    const Eigen::Matrix<double,6,1> sigd_curr(smath->P_dev*stress_curr);
-    const double J_2(smath->CalJ2(sigd_curr*GM0)), J_3(smath->CalJ3(sigd_curr*GM0)), theta(smath->CalLodeAngle(sigd_curr*GM0));
-    const Eigen::Matrix<double,6,1> sigd_curr_inv(smath->InvertVector(sigd_curr * GM0));
+    const Eigen::Matrix<double,6,1> sigd_curr(GMO*smath->P_dev*stress_curr);
+    const double J_2(smath->CalJ2(sigd_curr)), J_3(smath->CalJ3(sigd_curr)), theta(smath->CalLodeAngle(sigd_curr));
+    const Eigen::Matrix<double,6,1> sigd_curr_inv(smath->InvertVector(sigd_curr));
     const Eigen::Matrix<double,6,1> dev_sigd_curr_inv (smath->P_dev * sigd_curr_inv);
     const double vol_flow(3. * DG_DI1(psi));
-    const Eigen::Matrix<double,6,1> dmu_vM = DetaM_Dsigma(sig_eff*GM0,sigd_curr*GM0);
+    const Eigen::Matrix<double,6,1> dmu_vM = DetaM_Dsigma(sig_eff*GM0,sigd_curr);
     Eigen::Matrix<double,6,1> dev_flow;
     Eigen::Matrix<double,6,6> Ddev_flowDsigma;
     const double DthetaDJ2(Dtheta_DJ2(theta,J_2));
@@ -488,21 +488,21 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
     else
     {
         const double DGDtheta(DG_Dtheta(theta,J_2,psi));
-        dev_flow = (DG_DJ2(theta,J_2,psi) + DGDtheta * DthetaDJ2)*GM0*sigd_curr +
+        dev_flow = (DG_DJ2(theta,J_2,psi) + DGDtheta * DthetaDJ2)*sigd_curr +
                 (DGDtheta * DthetaDJ3 * J_3) * dev_sigd_curr_inv;
         Ddev_flowDsigma = (
                     (DG_DJ2(theta,J_2,psi) + DGDtheta * DthetaDJ2) * smath->P_dev +
                     (DGDtheta * DthetaDJ3 * J_3) * smath->P_dev * s_odot_s(sigd_curr_inv) * smath->P_dev +
                     (DDG_DDJ2(theta,J_2,psi) + DDG_DJ2_Dtheta(theta,J_2,psi) * DthetaDJ2 +
-                        DGDtheta * DDtheta_DDJ2(theta,J_2)) * GM0*GM0 * sigd_curr*sigd_curr.transpose() +
+                        DGDtheta * DDtheta_DDJ2(theta,J_2)) * sigd_curr*sigd_curr.transpose() +
                     (DDG_DJ2_Dtheta(theta,J_2,psi) + DDG_DDtheta(theta,J_2,psi) * DthetaDJ2 +
                         DGDtheta * DDtheta_DJ2_Dtheta(theta,J_2)) *
-                        (DthetaDJ2 * GM0*GM0 * sigd_curr*sigd_curr.transpose() +
-                         DthetaDJ3 * J_3 * GM0 * sigd_curr * dev_sigd_curr_inv.transpose()) +
-                    DDG_DJ2_Dtheta(theta,J_2,psi) * DthetaDJ3 * J_3 * GM0 * dev_sigd_curr_inv * sigd_curr.transpose() +
+                        (DthetaDJ2 * sigd_curr*sigd_curr.transpose() +
+                         DthetaDJ3 * J_3 * sigd_curr * dev_sigd_curr_inv.transpose()) +
+                    DDG_DJ2_Dtheta(theta,J_2,psi) * DthetaDJ3 * J_3 * dev_sigd_curr_inv * sigd_curr.transpose() +
                     DGDtheta * J_3 * (DthetaDJ3 + DDtheta_DDJ3(theta,J_3) * J_3) * dev_sigd_curr_inv * dev_sigd_curr_inv.transpose() +
                     J_3 * (DDG_DDtheta(theta,J_2,psi) * DthetaDJ3 + DGDtheta * DDtheta_DJ3_Dtheta(theta,J_3)) *
-                        (DthetaDJ2 * GM0 * dev_sigd_curr_inv * sigd_curr.transpose() + DthetaDJ3 * J_3 * dev_sigd_curr_inv * dev_sigd_curr_inv.transpose())
+                        (DthetaDJ2 * dev_sigd_curr_inv * sigd_curr.transpose() + DthetaDJ3 * J_3 * dev_sigd_curr_inv * dev_sigd_curr_inv.transpose())
                     ) * GM0;
     }
 
@@ -531,7 +531,7 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
     //G_23 through G_27 are zero
 
     //build G_31
-    Jac.block<6,6>(12,0) = -GM0/(2.*etaM) * (smath->P_dev - sigd_curr * dmu_vM.transpose() / etaM);
+    Jac.block<6,6>(12,0) = -1./(2.*etaM) * (GM0*smath->P_dev - sigd_curr * dmu_vM.transpose() / etaM);
 
     //G_32 is 0
 
@@ -566,7 +566,7 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
     //Conditional build of G_61 und G_67
     if (std::abs(eff_flow) > DBL_EPSILON)
     {
-        Jac.block<1,6>(25,0) = -2. * lam_curr*lam_curr/(3.*eff_flow) * dev_flow.transpose() * Ddev_flowDsigma.transpose();
+        Jac.block<1,6>(25,0) = -2. * lam_curr*lam_curr/(3.*eff_flow) * dev_flow * Ddev_flowDsigma;
         Jac.block<1,1>(25,26)(0) = -2./(3.*eff_flow) * std::abs(lam_curr) * (double)(dev_flow.transpose()*dev_flow);
     }
     //G_62 to G_64 and G_65 are zero
@@ -581,7 +581,7 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
     }
     else
     {
-        dev_flow = (DG_DJ2(theta,J_2,phi) + DG_Dtheta(theta,J_2,phi) * DthetaDJ2)*GM0*sigd_curr +
+        dev_flow = (DG_DJ2(theta,J_2,phi) + DG_Dtheta(theta,J_2,phi) * DthetaDJ2)*sigd_curr +
                 (DG_Dtheta(theta,J_2,phi) * DthetaDJ3 * J_3) * dev_sigd_curr_inv;
     }
 
