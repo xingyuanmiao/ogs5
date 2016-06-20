@@ -159,8 +159,8 @@ void SolidMinkley::CalViscoelasticJacobian(const double dt, const Eigen::Matrix<
                                            Eigen::Matrix<double,18,18> &Jac)
 {
     //6x6 submatrices of the Jacobian
-    const Eigen::Matrix<double,6,1> sigd_curr(smath->P_dev*stress_curr);
-    const Eigen::Matrix<double,6,1> dmu_vM = DetaM_Dsigma(sig_eff*GM0,sigd_curr*GM0);
+    const Eigen::Matrix<double,6,1> sigd_curr(GM0*smath->P_dev*stress_curr);
+    const Eigen::Matrix<double,6,1> dmu_vM = DetaM_Dsigma(sig_eff*GM0,sigd_curr);
 
     //Check Dimension of Jacobian
     if (Jac.cols() != 18 || Jac.rows() != 18)
@@ -188,7 +188,7 @@ void SolidMinkley::CalViscoelasticJacobian(const double dt, const Eigen::Matrix<
     //nothing to do for G_23
 
     //build G_31
-    Jac.block<6,6>(12,0) = -GM0/(2.*etaM) * (smath->P_dev - sigd_curr * dmu_vM.transpose() / etaM);
+    Jac.block<6,6>(12,0) = -1./(2.*etaM) * (GM0*smath->P_dev - sigd_curr * dmu_vM.transpose() / etaM);
 
     //nothing to do for G_32
 
@@ -292,7 +292,7 @@ void SolidMinkley::CalViscoplasticResidual(const double dt, const Eigen::Matrix<
 {
     const Eigen::Matrix<double,6,1> sigd_curr(GM0 *smath->P_dev*stress_curr);
     const double J_2(smath->CalJ2(sigd_curr)), J_3(smath->CalJ3(sigd_curr)), theta(smath->CalLodeAngle(sigd_curr));
-    const Eigen::Matrix<double,6,1> deps_K_dt_i(1./(2.*etaK0) * (GM0 - 2.*GK0*dstrain_Kel_curr));
+    const Eigen::Matrix<double,6,1> deps_K_dt_i(1./(2.*etaK0) * (sigd_curr - 2.*GK0*dstrain_Kel_curr));
     const Eigen::Matrix<double,6,1> dev_sigd_curr_inv (smath->P_dev * smath->InvertVector(sigd_curr));
     const double vol_flow(3. * DG_DI1(psi));
 
@@ -548,7 +548,7 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
     //build G_44
     Jac.block<6,6>(18,18) = smath->ident/dt;
 
-    //G_45 and G_45 are zero
+    //G_45 and G_46 are zero
 
     //build G_47
     Jac.block<6,1>(18,26) = -dev_flow;
