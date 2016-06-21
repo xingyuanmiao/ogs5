@@ -2504,6 +2504,7 @@ void CFiniteElementVec::GlobalAssembly_RHS()
 
 				delete [] strain_t; delete [] strain_curr;
                 delete [] stress_curr; delete [] eps_K_curr;
+                delete [] eps_M_curr;
 				delete ConsD;
 				ConsD = NULL;
 			}
@@ -2588,7 +2589,8 @@ void CFiniteElementVec::GlobalAssembly_RHS()
                 }
 
                 delete [] strain_t; delete [] strain_curr;
-                delete [] stress_curr; delete [] eps_K_curr; delete [] eps_pl_curr;
+                delete [] stress_curr; delete [] eps_K_curr;
+                delete [] eps_M_curr; delete [] eps_pl_curr;
                 delete ConsD;
                 ConsD = NULL;
             }
