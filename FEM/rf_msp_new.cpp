@@ -1933,7 +1933,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
     //Loop variables
     int counter = 0;
     const int counter_max(20);
-    const double local_tolerance(1.e-14);
+    const double local_tolerance(1.e-10);
 
 //    if (Output){
 //    ofstream Dum("local.txt", ios::app);
@@ -1967,22 +1967,25 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
     {
         Eigen::Matrix<double,27,1> res_loc_p, inc_loc_p;
         Eigen::Matrix<double,27,27> K_loc_p;
+        Eigen::Matrix<double,27,27> K_num_p;
 
-        material_minkley->CalViscoplasticResidual(dt,epsd_i,e_i,sig_j,eps_K_j,eps_K_t,eps_M_j,eps_M_t,eps_pl_j,eps_pl_t,
+        material_minkley->CalViscoplasticResidual(dt,epsd_i,e_i,sig_j,eps_K_j,eps_K_t,eps_M_j,eps_M_t,eps_pl_j,eps_pl_t, \
                                                   e_pl_v,e_pl_v_t,e_pl_eff,e_pl_eff_t,lam,res_loc_p);
-        //material_minkley->CalViscoplasticJacobian(dt,sig_j,sig_eff,lam,K_loc_p);
-        material_minkley->NumericalJacobian(dt,epsd_i,e_i,sig_j,eps_K_j,eps_K_t,eps_M_j,eps_M_t,eps_pl_j,eps_pl_t,
-                                                  e_pl_v,e_pl_v_t,e_pl_eff,e_pl_eff_t,lam,K_loc_p);
-
-
-
+        material_minkley->CalViscoplasticJacobian(dt,sig_j,sig_eff,lam,K_loc_p);
+        material_minkley->NumericalJacobian(dt,epsd_i,e_i,sig_j,eps_K_j,eps_K_t,eps_M_j,eps_M_t,eps_pl_j,eps_pl_t, \
+                                                  e_pl_v,e_pl_v_t,e_pl_eff,e_pl_eff_t,lam,K_num_p);
         while (res_loc_p.norm() > local_tolerance && counter < counter_max)
         {
             counter++;
+            std::cout << "iter " << counter << std::endl;
             //Get Jacobian
-            //material_minkley->CalViscoplasticJacobian(dt,sig_j,sig_eff,lam,K_loc_p);
-            material_minkley->NumericalJacobian(dt,epsd_i,e_i,sig_j,eps_K_j,eps_K_t,eps_M_j,eps_M_t,eps_pl_j,eps_pl_t,
-                                                      e_pl_v,e_pl_v_t,e_pl_eff,e_pl_eff_t,lam,K_loc_p);
+            material_minkley->CalViscoplasticJacobian(dt,sig_j,sig_eff,lam,K_loc_p);
+            material_minkley->NumericalJacobian(dt,epsd_i,e_i,sig_j,eps_K_j,eps_K_t,eps_M_j,eps_M_t,eps_pl_j,eps_pl_t, \
+                                                      e_pl_v,e_pl_v_t,e_pl_eff,e_pl_eff_t,lam,K_num_p);
+            for (int kk(0.); kk<27; kk++)
+                for(int ll(0.); ll<27; ll++)
+                    if (std::abs(K_loc_p(kk,ll) - K_num_p(kk,ll)) > 1.e-10)
+                        std::cout << "Deviation at " << kk << " " << ll << " " << K_loc_p(kk,ll) << " " << K_num_p(kk,ll) << " " << K_loc_p(kk,ll) - K_num_p(kk,ll) << std::endl;
             //Solve linear system
             inc_loc_p = K_loc_p.householderQr().solve(-res_loc_p);
             //increment solution vectors
@@ -1997,7 +2000,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
             sig_eff = smath->CalEffectiveStress(smath->P_dev*sig_j);
             material_minkley->UpdateMinkleyProperties(sig_eff*material_minkley->GM0, e_pl_eff, Temperature);
             //evaluation of new residual
-            material_minkley->CalViscoplasticResidual(dt,epsd_i,e_i,sig_j,eps_K_j,eps_K_t,eps_M_j,eps_M_t,eps_pl_j,eps_pl_t,
+            material_minkley->CalViscoplasticResidual(dt,epsd_i,e_i,sig_j,eps_K_j,eps_K_t,eps_M_j,eps_M_t,eps_pl_j,eps_pl_t, \
                                                       e_pl_v,e_pl_v_t,e_pl_eff,e_pl_eff_t,lam,res_loc_p);
 //            if (Output){
 //            ofstream Dum("local.txt", ios::app);

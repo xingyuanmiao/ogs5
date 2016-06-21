@@ -599,7 +599,7 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
 
 /**************************************************************************
    FEMLib-Method: Burgers::CalEPdGdE()
-   Task: Calculates the 21x6 derivative of the residuals with respect to total strain. Implementation fully implicit only.
+   Task: Calculates the 27x6 derivative of the residuals with respect to total strain. Implementation fully implicit only.
    Programing:
    06/2015 TN Implementation
 **************************************************************************/
