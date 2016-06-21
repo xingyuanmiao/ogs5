@@ -213,7 +213,7 @@ void SolidMinkley::CaldGdE(const double dt, Eigen::Matrix<double,18,6> &dGdE)
     }
 
     dGdE.setZero(18,6);
-    dGdE.block<6,6>(0,0) = -2. * smath->P_dev - 3./dt * KM0/GM0 * smath->P_sph;
+    dGdE.block<6,6>(0,0) = -2. * smath->P_dev - 3. * KM0/GM0 * smath->P_sph;
 }
 
 /**************************************************************************
@@ -613,7 +613,7 @@ void SolidMinkley::CalEPdGdE(const double dt, Eigen::Matrix<double,27,6> &dGdE)
     }
 
     dGdE.setZero(27,6);
-    dGdE.block<6,6>(0,0) = -2. * smath->P_dev - 3./dt * KM0/GM0 * smath->P_sph;
+    dGdE.block<6,6>(0,0) = -2. * smath->P_dev - 3. * KM0/GM0 * smath->P_sph;
 }
 
 } //namespace Minkley ends
