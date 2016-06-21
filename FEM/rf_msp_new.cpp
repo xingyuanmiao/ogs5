@@ -1970,14 +1970,19 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
 
         material_minkley->CalViscoplasticResidual(dt,epsd_i,e_i,sig_j,eps_K_j,eps_K_t,eps_M_j,eps_M_t,eps_pl_j,eps_pl_t,
                                                   e_pl_v,e_pl_v_t,e_pl_eff,e_pl_eff_t,lam,res_loc_p);
-        material_minkley->CalViscoplasticJacobian(dt,sig_j,sig_eff,lam,K_loc_p);
+        //material_minkley->CalViscoplasticJacobian(dt,sig_j,sig_eff,lam,K_loc_p);
+        material_minkley->NumericalJacobian(dt,epsd_i,e_i,sig_j,eps_K_j,eps_K_t,eps_M_j,eps_M_t,eps_pl_j,eps_pl_t,
+                                                  e_pl_v,e_pl_v_t,e_pl_eff,e_pl_eff_t,lam,K_loc_p);
+
 
 
         while (res_loc_p.norm() > local_tolerance && counter < counter_max)
         {
             counter++;
             //Get Jacobian
-            material_minkley->CalViscoplasticJacobian(dt,sig_j,sig_eff,lam,K_loc_p);
+            //material_minkley->CalViscoplasticJacobian(dt,sig_j,sig_eff,lam,K_loc_p);
+            material_minkley->NumericalJacobian(dt,epsd_i,e_i,sig_j,eps_K_j,eps_K_t,eps_M_j,eps_M_t,eps_pl_j,eps_pl_t,
+                                                      e_pl_v,e_pl_v_t,e_pl_eff,e_pl_eff_t,lam,K_loc_p);
             //Solve linear system
             inc_loc_p = K_loc_p.householderQr().solve(-res_loc_p);
             //increment solution vectors
@@ -2004,7 +2009,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
         Eigen::Matrix<double,27,6> dGdE;
         Kelvin_to_Voigt_Strain(eps_pl_j,eps_pl_curr);
         //Calculate dGdE for time step
-        material_minkley->CalEPdGdE(dt,dGdE);
+        material_minkley->CalEPdGdE(dGdE);
         //get dsigdE matrix
         ExtractConsistentTangent(K_loc_p,dGdE,dsigdE);
     }
@@ -2013,7 +2018,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
         //dGdE matrix and dsigdE matrix
         Eigen::Matrix<double,18,6> dGdE;
         //Calculate dGdE for time step
-        material_minkley->CaldGdE(dt,dGdE);
+        material_minkley->CaldGdE(dGdE);
         //get dsigdE matrix
         ExtractConsistentTangent(K_loc,dGdE,dsigdE);
     }

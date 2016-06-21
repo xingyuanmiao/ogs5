@@ -202,7 +202,7 @@ void SolidMinkley::CalViscoelasticJacobian(const double dt, const Eigen::Matrix<
    Programing:
    06/2015 TN Implementation
 **************************************************************************/
-void SolidMinkley::CaldGdE(const double dt, Eigen::Matrix<double,18,6> &dGdE)
+void SolidMinkley::CaldGdE(Eigen::Matrix<double,18,6> &dGdE)
 {
 
     //Check Dimension of dGdE
@@ -603,7 +603,7 @@ void SolidMinkley::CalViscoplasticJacobian(const double dt, const Eigen::Matrix<
    Programing:
    06/2015 TN Implementation
 **************************************************************************/
-void SolidMinkley::CalEPdGdE(const double dt, Eigen::Matrix<double,27,6> &dGdE)
+void SolidMinkley::CalEPdGdE(Eigen::Matrix<double,27,6> &dGdE)
 {
     //Check Dimension of dGdE
     if (dGdE.cols() != 6 || dGdE.rows() != 27)

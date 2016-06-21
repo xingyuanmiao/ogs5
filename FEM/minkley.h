@@ -45,7 +45,7 @@ public:
                                  const Eigen::Matrix<double,6,1> &dstrain_Kel_t, const Eigen::Matrix<double,6,1> &dstrain_Max_curr,
                                  const Eigen::Matrix<double,6,1> &dstrain_Max_t, const Eigen::Matrix<double,6,1> &dstrain_p_curr, Eigen::Matrix<double,18,1> &res);
     void CalViscoelasticJacobian(const double dt, const Eigen::Matrix<double,6,1> &stress_curr, const double sig_eff,Eigen::Matrix<double,18,18> &Jac);
-    void CaldGdE(const double dt, Eigen::Matrix<double,18,6> &dGdE);
+    void CaldGdE(Eigen::Matrix<double,18,6> &dGdE);
     void CalViscoplasticResidual(const double dt, const Eigen::Matrix<double,6,1> &dstrain_curr, const double e_curr,
                                  const Eigen::Matrix<double,6,1> &stress_curr, const Eigen::Matrix<double,6,1> &dstrain_Kel_curr,
                                  const Eigen::Matrix<double,6,1> &dstrain_Kel_t, const Eigen::Matrix<double,6,1> &dstrain_Max_curr,
@@ -54,7 +54,7 @@ public:
                                  const double e_pl_eff_curr, const double e_pl_eff_t, const double lam_curr, Eigen::Matrix<double,27,1> &res);
     void CalViscoplasticJacobian(const double dt, const Eigen::Matrix<double,6,1> &stress_curr, const double sig_eff,
                                                const double lam_curr, Eigen::Matrix<double,27,27> &Jac);
-    void CalEPdGdE(const double dt, Eigen::Matrix<double,27,6> &dGdE);
+    void CalEPdGdE(Eigen::Matrix<double,27,6> &dGdE);
     void NumericalJacobian(const double dt, const Eigen::Matrix<double,6,1> &dstrain_curr, const double e_curr,
                                          const Eigen::Matrix<double,6,1> &stress_curr, const Eigen::Matrix<double,6,1> &dstrain_Kel_curr,
                                          const Eigen::Matrix<double,6,1> &dstrain_Kel_t, const Eigen::Matrix<double,6,1> &dstrain_Max_curr,
