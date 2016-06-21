@@ -1890,7 +1890,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
     //deviatoric stress, strain
     Eigen::Matrix<double,6,1> epsd_i, epsd_t, sigd_j, sigd_t;
     double e_t, e_i, p_t, p_j;
-    const double e_pl_v_t = e_pl_v, e_pl_eff_t = e_pl_eff;
+    double e_pl_v_t = e_pl_v, e_pl_eff_t = e_pl_eff;
     //local residual vector and Jacobian
     Eigen::Matrix<double,18,1> res_loc, inc_loc;
     Eigen::Matrix<double,18,18> K_loc;
@@ -1971,6 +1971,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
         material_minkley->CalViscoplasticResidual(dt,epsd_i,e_i,sig_j,eps_K_j,eps_K_t,eps_M_j,eps_M_t,eps_pl_j,eps_pl_t,
                                                   e_pl_v,e_pl_v_t,e_pl_eff,e_pl_eff_t,lam,res_loc_p);
         material_minkley->CalViscoplasticJacobian(dt,sig_j,sig_eff,lam,K_loc_p);
+
 
         while (res_loc_p.norm() > local_tolerance && counter < counter_max)
         {
