@@ -2547,7 +2547,6 @@ void CFiniteElementVec::GlobalAssembly_RHS()
                         eps_M_curr[compnt] = 0.0;
                         eps_pl_curr[compnt] = 0.0;
                     }
-
                 double e_pl_v = (*eleV_DM->e_pl)(gp);
                 double e_pl_eff = (*eleV_DM->pStrain)(gp);
 				double lam = 0.;//(*eleV_DM->lambda_pl)(gp);

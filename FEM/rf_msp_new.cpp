@@ -1812,7 +1812,6 @@ void CSolidProperties::LocalNewtonBurgers(const double dt, double* strain_curr,
 	//Loop variables
 	int counter = 0;
 	const int counter_max(20);
-	const double local_tolerance(1.e-16);
 
 	if (Output) //Need not be performant;
 	{
@@ -1822,7 +1821,7 @@ void CSolidProperties::LocalNewtonBurgers(const double dt, double* strain_curr,
 		Dum.close();
 	};
 //    for (int counter(0); counter<counter_max && res_loc.norm() > local_tolerance; ++counter)
-	while (res_loc.norm() > local_tolerance && counter < counter_max)
+	while (res_loc.norm() > Tolerance_Local_Newton && counter < counter_max)
 	{
 		counter++;
 		//Get Jacobian
@@ -1941,8 +1940,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
 
     //Loop variables
     int counter = 0;
-    const int counter_max(20);
-	const double local_tolerance(1.e-16);
+	const int counter_max(20);
 
 	if (Output)
 	{
@@ -1952,7 +1950,8 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
 		Dum.close();
 	}
 
-    while (res_loc.norm() > local_tolerance && counter < counter_max)
+
+	while (res_loc.norm() > Tolerance_Local_Newton && counter < counter_max)
     {
         counter++;
         //Get Jacobian
@@ -1976,7 +1975,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
 			Dum.close();
 		};
     }
-    if (!(material_minkley->YieldMohrCoulomb(sig_j*material_minkley->GM0) < local_tolerance))
+	if (!(material_minkley->YieldMohrCoulomb(sig_j*material_minkley->GM0) < Tolerance_Local_Newton))
     {
         Eigen::Matrix<double,27,1> res_loc_p, inc_loc_p;
         Eigen::Matrix<double,27,27> K_loc_p;
@@ -1984,7 +1983,7 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
         material_minkley->CalViscoplasticResidual(dt,epsd_i,e_i,sig_j,eps_K_j,eps_K_t,eps_M_j,eps_M_t,eps_pl_j,eps_pl_t, \
                                                   e_pl_v,e_pl_v_t,e_pl_eff,e_pl_eff_t,lam,res_loc_p);
         material_minkley->CalViscoplasticJacobian(dt,sig_j,sig_eff,lam,K_loc_p);
-        while (res_loc_p.norm() > local_tolerance && counter < counter_max)
+		while (res_loc_p.norm() > Tolerance_Local_Newton && counter < counter_max)
         {
             counter++;
             //std::cout << "iter " << counter << std::endl;
@@ -2021,6 +2020,8 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
         material_minkley->CalEPdGdE(dGdE);
         //get dsigdE matrix
         ExtractConsistentTangent(K_loc_p,dGdE,dsigdE);
+		if (counter == counter_max)
+			std::cout << "WARNING: Maximum iteration number needed in LocalNewtonMinkley (VP). Convergence not guaranteed. Residual = " << res_loc_p.norm() << std::endl;
     }
     else
     {
@@ -2030,9 +2031,9 @@ void CSolidProperties::LocalNewtonMinkley(const double dt, double* strain_curr, 
         material_minkley->CaldGdE(dGdE);
         //get dsigdE matrix
         ExtractConsistentTangent(K_loc,dGdE,dsigdE);
+		if (counter == counter_max)
+			std::cout << "WARNING: Maximum iteration number needed in LocalNewtonMinkley (VE). Convergence not guaranteed. Residual = " << res_loc.norm() << std::endl;
     }
-	if (counter == counter_max)
-		std::cout << "WARNING: Maximum iteration number needed in LocalNewtonMinkley. Convergence not guaranteed." << std::endl;
 
     //add hydrostatic part to stress and tangent
     sig_j *= material_minkley->GM0;

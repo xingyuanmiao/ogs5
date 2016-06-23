@@ -36,7 +36,8 @@ using namespace std;
 
 namespace {
 
-std::string tmpStr = ( BuildInfo::OGS_EXECUTABLE );
+//std::string tmpStr = ( BuildInfo::OGS_EXECUTABLE );
+std::string tmpStr = "ogs";
 
 class MinBMTest : public ::testing::Test {
   /**

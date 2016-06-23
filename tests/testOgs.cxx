@@ -22,7 +22,8 @@
 
 namespace {
 
-std::string tmpStr = ( BuildInfo::OGS_EXECUTABLE ); // passed by CMakeLists.txt
+//std::string tmpStr = ( BuildInfo::OGS_EXECUTABLE ); // passed by CMakeLists.txt
+std::string tmpStr = "ogs";
 
 
 // The fixture for testing class Ogs.
