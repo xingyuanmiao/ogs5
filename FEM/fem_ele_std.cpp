@@ -5591,10 +5591,10 @@ void CFiniteElementStd::CalcStrainCoupling(int phase)
 void CFiniteElementStd::Assemble_Gravity()
 {
 	// int Index = MeshElement->GetIndex();
-	if ((coordinate_system) % 10 != 2) // NW: exclude (!axisymmetry)
+//	if ((coordinate_system) % 10 != 2) // NW: exclude (!axisymmetry)
 
-		// 27.2.2007 WW (*GravityMatrix) = 0.0;
-		return;
+//		// 27.2.2007 WW (*GravityMatrix) = 0.0;
+//		return;
 	int i, ii;
 	// ---- Gauss integral
 	int gp_r = 0, gp_s = 0, gp_t;
@@ -10577,11 +10577,6 @@ void CFiniteElementStd::Assemble_RHS_LIQUIDFLOW()
 		//---------------------------------------------------------
 		const double fac = eff_thermal_expansion * dT / dt / time_unit_factor; // WX:bug fixed
 
-		const double* tensor = MediaProp->PermeabilityTensor(Index); // pointer to permeability tensor;
-		double k_rel = 1.0; // relative permeability;
-		if (MediaProp->flowlinearity_model > 0)
-			k_rel = MediaProp->NonlinearFlowFunction(Index, gp, 1.0, this);
-
 #if defined(USE_PETSC) //|| defined (other parallel solver) //WW 04.2014
 		for (int ia = 0; ia < act_nodes; ia++)
 		{
@@ -10591,11 +10586,6 @@ void CFiniteElementStd::Assemble_RHS_LIQUIDFLOW()
 		{
 #endif
 			NodalVal[i] += gp_fkt * fac * shapefct[i];
-			//Gravity only in last dimension direction. Fix.
-			const int j=dim-1;
-			int index_tmp = j * nnodes + i;
-			NodalVal[i] -= gp_fkt * gravity_constant * FluidProp->Density()/FluidProp->Viscosity() * dshapefct[index_tmp] * tensor[0]*k_rel;
-			//TODO: include actual tensor with coordinate transformation
 		}
 	}
 
