@@ -10519,6 +10519,8 @@ void CFiniteElementStd::Assemble_RHS_LIQUIDFLOW()
 	    && SolidProp->Thermal_Expansion() == .0)
 		return;
 
+	ElementValue* gp_ele = ele_gp_value[Index];
+
 	//----------------------------------------------------------------------
 	for (int i = 0; i < nnodes; i++)
 		NodalVal[i] = 0.0;
@@ -10577,6 +10579,27 @@ void CFiniteElementStd::Assemble_RHS_LIQUIDFLOW()
 		//---------------------------------------------------------
 		const double fac = eff_thermal_expansion * dT / dt / time_unit_factor; // WX:bug fixed
 
+		// Add term RHS+=int{N^T beta_TF grad T \cdot (\phi_F w_FS)}
+
+		double* grad_T = new double[dim]; // gradient of gas pressure.
+		double fac2 = 0.;
+
+		for (size_t i = 0; i < dim; i++) // loop over all dimensions
+		{
+			grad_T[i] = 0.0; // clear to zero;
+			for (int j = 0; j < nnodes; j++) // loop over all connecting nodes
+			{
+				const double pg_tmp = (1.0 - pcs->m_num->ls_theta) * NodalValC[j]
+				                + pcs->m_num->ls_theta * NodalValC1[j]; // tmp value of temperature
+				const int index_tmp = i * nnodes + j;
+				grad_T[i] += dshapefct[index_tmp] * pg_tmp;
+			}
+			fac2 += grad_T[i] * gp_ele->Velocity(i, gp);
+		}
+
+		fac2 *= alpha_T_l;
+		delete[] grad_T;
+
 #if defined(USE_PETSC) //|| defined (other parallel solver) //WW 04.2014
 		for (int ia = 0; ia < act_nodes; ia++)
 		{
@@ -10585,7 +10608,7 @@ void CFiniteElementStd::Assemble_RHS_LIQUIDFLOW()
 		for (int i = 0; i < nnodes; i++)
 		{
 #endif
-			NodalVal[i] += gp_fkt * fac * shapefct[i];
+			NodalVal[i] += gp_fkt * (fac + fac2) * shapefct[i];
 		}
 	}
 
