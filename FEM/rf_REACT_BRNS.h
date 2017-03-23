@@ -1,12 +1,3 @@
-/**
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
- *
- */
-
 #ifndef RF_REACT_BRNS_H
 #define RF_REACT_BRNS_H
 
@@ -20,20 +11,20 @@
 #ifdef BRNS
 #ifdef WIN32
 #pragma once
-extern "C" __declspec(dllimport) void brnsIsAlive();
-extern "C" __declspec(dllimport) void invokebrns(double* theCurArray,
-                                                 double* thePreArray,
-                                                 double* outputArray,
-                                                 int* sizeOfArray,
-                                                 double* time_step,
-                                                 int* boundary_flag,
-                                                 int* returnValue,
-                                                 double* pos_x,
-                                                 double* pos_y,
-                                                 double* pos_z,
-                                                 double* porosity,
-                                                 double* waterSaturation,
-                                                 double* parameterVector);
+extern "C" __declspec( dllimport )  void brnsIsAlive();
+extern "C" __declspec( dllimport )  void invokebrns(double* theCurArray,
+                                                    double* thePreArray,
+                                                    double* outputArray,
+                                                    int* sizeOfArray,
+                                                    double* time_step,
+                                                    int* boundary_flag,
+                                                    int* returnValue,
+                                                    double* pos_x,
+                                                    double* pos_y,
+                                                    double* pos_z,
+                                                    double* porosity,
+                                                    double* waterSaturation,
+                                                    double* parameterVector);
 #endif
 #endif
 
@@ -63,10 +54,9 @@ public:
 	int* rt_BRNS;
 
 #ifdef GCC
-	void* hDll;
-	//	void* hDll, * hDll_1, * hDll_2;
-	typedef void (*LPFNDLLFUNC)(double*, double*, double*, int*, double*, int*, int*, double*, double*, double*,
-	                            double*, double*, double*);
+	void* hDll, * hDll_1, * hDll_2;
+	typedef void (*LPFNDLLFUNC)(double*, double*, double*, int*, double*, int*, int*, double*,
+	                            double*, double*, double*, double*, double*);
 	LPFNDLLFUNC invokebrns;
 #endif
 
@@ -77,7 +67,7 @@ public:
 #endif
 
 	// pointer to the PCS Class;
-	CRFProcess *m_pcs, *this_pcs, *m_flow_pcs;
+	CRFProcess* m_pcs, * this_pcs, * m_flow_pcs;
 	Problem* myProblem;
 
 	// pointer to MFP class
@@ -116,16 +106,16 @@ public:
 	void InitBRNS(Problem* myProblem);
 
 	// Data transfer btw GeoSys and BRNS;
-	void GSRF2Buffer(long i);
-	void Buffer2GSRF(long i);
+	void GSRF2Buffer( long i );
+	void Buffer2GSRF( long i );
 
 	// BC node checking
 	int IsThisPointBCIfYesStoreValue(int index, CRFProcess* m_pcs, double& value);
 
 	// porosity setting function
-	int SetPorosityValue_MT(long ele_Index, double m_porosity_Elem, int i_timestep);
-	void GetFluidProperty_MT(void);
-	void ConvPorosityNodeValue2Elem(int i_timestep);
+	int SetPorosityValue_MT ( long ele_Index,  double m_porosity_Elem, int i_timestep );
+	void GetFluidProperty_MT ( void );
+	void ConvPorosityNodeValue2Elem( int i_timestep );
 
 private:
 	// For measuring the time spent in BRNS calls

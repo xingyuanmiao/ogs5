@@ -3,11 +3,6 @@
  *
  *  Created on: May 22, 2012
  *      Author: fischeth
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
  */
 
 #ifndef LINEARINTERVALINTERPOLATION_H_
@@ -15,8 +10,8 @@
 
 #include <stdexcept>
 
-namespace MathLib
-{
+namespace MathLib {
+
 /**
  * @brief Class (template) LinearIntervalInterpolation is a functional object performing
  * an interval mapping \f$f: [a,b] \to [c,d]\f$.
@@ -28,8 +23,7 @@ namespace MathLib
  * \f$[c, d]\f$, i.e., \f$f: [a,b] \to [c,d]\f$.
  */
 template <typename NUMERIC_TYPE>
-class LinearIntervalInterpolation
-{
+class LinearIntervalInterpolation {
 public:
 	/**
 	 * Constructor of class template for a linear map \f$y = m \cdot x + n\f$.
@@ -46,7 +40,7 @@ public:
 	 * @param x the point the interpolation value is searched for
 	 * @return the interpolation value at point \f$x\f$
 	 */
-	inline NUMERIC_TYPE operator()(NUMERIC_TYPE x) const;
+	inline NUMERIC_TYPE operator() (NUMERIC_TYPE x) const;
 
 private:
 	/**
@@ -60,20 +54,19 @@ private:
 };
 
 template <typename NUMERIC_TYPE>
-LinearIntervalInterpolation<NUMERIC_TYPE>::LinearIntervalInterpolation(NUMERIC_TYPE a, NUMERIC_TYPE b, NUMERIC_TYPE c,
-                                                                       NUMERIC_TYPE d)
-    : _m(d - c), _n(0.0)
+LinearIntervalInterpolation<NUMERIC_TYPE>::LinearIntervalInterpolation(NUMERIC_TYPE a, NUMERIC_TYPE b,
+				NUMERIC_TYPE c, NUMERIC_TYPE d) :
+	_m (d-c), _n(0.0)
 {
-	if (b == a)
-	{
+	if (b == a) {
 		throw std::runtime_error("LinearIntervalInterpolation::LinearIntervalInterpolation: a == b, empty interval");
 	}
-	_m /= (b - a);
+	_m /= (b-a);
 	_n = c - _m * a;
 }
 
 template <typename NUMERIC_TYPE>
-inline NUMERIC_TYPE LinearIntervalInterpolation<NUMERIC_TYPE>::operator()(NUMERIC_TYPE x) const
+inline NUMERIC_TYPE LinearIntervalInterpolation<NUMERIC_TYPE>::operator() (NUMERIC_TYPE x) const
 {
 	return _m * x + _n;
 }

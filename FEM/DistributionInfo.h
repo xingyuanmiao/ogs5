@@ -3,11 +3,6 @@
  *
  *  Created on: Sep 28, 2010
  *      Author: TF
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
  */
 
 #ifndef DISTRIBUTIONINFO_H_
@@ -26,13 +21,13 @@ public:
 	 * Sets the value for the distribution type
 	 * @param dis_type value for primary variable, possible values are documented in enum PrimaryVariable
 	 */
-	void setProcessDistributionType(FiniteElement::DistributionType dis_type);
+	void setProcessDistributionType (FiniteElement::DistributionType dis_type);
 
 	/**
 	 * Get the distribution type of the process.
 	 * @return the distribution type of the process
 	 */
-	FiniteElement::DistributionType getProcessDistributionType() const;
+	FiniteElement::DistributionType getProcessDistributionType () const;
 
 private:
 	/**
@@ -41,4 +36,4 @@ private:
 	FiniteElement::DistributionType _dis_type;
 };
 
-#endif /* DISTRIBUTIONINFO_H_ */
+#endif                                            /* DISTRIBUTIONINFO_H_ */

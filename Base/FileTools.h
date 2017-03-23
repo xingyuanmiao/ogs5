@@ -2,46 +2,40 @@
  * \file FileTools.h
  * 26/4/2010 LB Initial implementation
  *
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
  */
 
 #ifndef FILETOOLS_H
 #define FILETOOLS_H
 
-#include <string>
+// ** INCLUDES **
+#include <sys/stat.h>
 
 /**
  * Returns true if given file exists. From http://www.techbytes.ca/techbyte103.html
  */
-bool IsFileExisting(std::string const& strFilename);
+static bool IsFileExisting(std::string const& strFilename)
+{
+	struct stat stFileInfo;
+	bool blnReturn;
+	int intStat;
 
-/// Returns true if given file includes CR
-bool HasCRInLineEnding(std::string const& strFilename);
+	// Attempt to get the file attributes
+	intStat = stat(strFilename.c_str(),&stFileInfo);
 
-/**
- * @brief computes the basename of the given path, i.e. the component after the last diretory separator (/ or \).
- */
-std::string pathBasename(const std::string& path);
+	if(intStat == 0)
+		// We were able to get the file attributes
+		// so the file obviously exists.
+		blnReturn = true;
+	else
+		// We were not able to get the file attributes.
+		// This may mean that we don't have permission to
+		// access the folder which contains this file. If you
+		// need to do that level of checking, lookup the
+		// return values of stat which will give you
+		// more details on why stat failed.
+		blnReturn = false;
 
-/**
- * @brief computes the dirname of the given path, i.e. the component before the last diretory separator (/ or \).
- */
-std::string pathDirname(const std::string& path);
-
-/**
- * @brief joins two paths using the correct directory separator.
- *
- * trailing and preceding (back)slashes at the join point are ignored.
- *
- * @returns a string: path1/path2. if any of the paths is empty, only the other one is returned
- */
-std::string pathJoin(const std::string& path1, const std::string& path2);
-
-/// returns the current process working directory
-std::string getCwd();
+	return blnReturn;
+}
 
 #endif // FILETOOLS_H

@@ -3,11 +3,6 @@
  *
  *  Created on: Apr 19, 2011
  *      Author: TF
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
  */
 
 #ifndef PROCESSIO_H_
@@ -39,7 +34,7 @@ public:
 	 * @return false, if the process is of type INVALID_PROCESS, else true
 	 * \sa enum ProcessType for valid values
 	 */
-	static bool readProcessInfo(std::istream& in_str, FiniteElement::ProcessType& pcs_type);
+	static bool readProcessInfo (std::istream& in_str, FiniteElement::ProcessType& pcs_type);
 };
 }
 

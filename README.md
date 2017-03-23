@@ -1,14 +1,8 @@
-[![Tag](https://img.shields.io/github/tag/ufz/ogs5.svg?style=flat-square)](https://github.com/ufz/ogs5/releases)
-[![BSD License (modified)](http://img.shields.io/badge/license-BSD-blue.svg?style=flat-square)](https://github.com/ufz/ogs5/blob/master/LICENSE.txt)
-[![Travis](https://img.shields.io/travis/ufz/ogs5.svg?style=flat-square)](https://travis-ci.org/ufz/ogs5)
-[![Shippable](https://api.shippable.com/projects/553ff718edd7f2c052d6b180/badge?branchName=develop)](https://app.shippable.com/projects/553ff718edd7f2c052d6b180/builds/latest)
-
 # OGS-5 #
 
 - General homepage: http://www.opengeosys.org
 - Wiki: https://svn.ufz.de/ogs
-- Build instructions: https://docs.opengeosys.org/docs/devguide5/getting-started/introduction
-- Jenkins: https://svn.ufz.de:8443/job/OGS-5/
+- Build instructions: http://devguide.opengeosys.org
 
 ## Quickstart ##
 
@@ -16,7 +10,7 @@
 cd [source-directory]
 mkdir build
 cd build
-cmake ..
+cmake .. -DOGS_FEM=ON
 ```
 
 Open the Visual Studio solution which was created in the build-directory or just type `make` on Linux.
@@ -37,3 +31,6 @@ Once the development branch is ready to release a new version (this can also be 
 1. merge the development branch into master
 2. push all new commits in master to the SVN repository using `git svn dcommit`
 
+## Enable the Git to Subversion connection ##
+
+See [this wiki-page](https://github.com/envinf/ogs5-trunk/wiki) for instructions.

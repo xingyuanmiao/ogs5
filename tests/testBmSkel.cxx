@@ -1,12 +1,3 @@
-/**
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
- *
- */
-
 #ifndef OGS_MINI_BM_TESTS_H
 #define OGS_MINI_BM_TESTS_H
 
@@ -17,8 +8,8 @@ using namespace std;
 //#define NINFO
 #define NWARNING
 #define NERROR
-#include "BuildInfo.h"
 #include "logging.h"
+#include "Configure.h"
 
 #include "gtest.h"
 
@@ -34,9 +25,17 @@ using namespace std;
 #include <dirent.h>    // for opendir()
 #include <errno.h>
 
-namespace {
+//#cmakedefine OGS_EXECUTABLE;
 
-std::string tmpStr = ( BuildInfo::OGS_EXECUTABLE );
+//char tmpChar[] = ( OGS_EXECUTABLE );
+#ifndef PUT_TMP_DIR_IN
+exit(1) // fail
+#endif
+
+namespace {
+	
+char tmpChar[] = OGS_EXECUTABLE;
+std::string tmpStr = tmpChar; // path passed by CMakeLists.txt
 
 class MinBMTest : public ::testing::Test {
   /**
@@ -64,8 +63,8 @@ protected:
 	exit(1);
       }
 
-    TmpDirectory.append( BuildInfo::PUT_TMP_DIR_IN ); // passed by CMakeLists.txt
-    PRINT_DEBUG( BuildInfo::PUT_TMP_DIR_IN )
+    TmpDirectory.append( PUT_TMP_DIR_IN ); // passed by CMakeLists.txt
+    PRINT_DEBUG( PUT_TMP_DIR_IN )
     // TODO: put this somewhere configurable
     TmpDirectory.append( "data/tmpTestOutput_XXXXXX" );
     // convert to char * for mkdtemp()
@@ -163,7 +162,7 @@ protected:
 
     int outfd[2];
     int infd[2];
-
+  
     pipe(outfd); // ogs writes to
     pipe(infd); //  gtest reads from
 
@@ -172,7 +171,7 @@ protected:
     if( ! pid )    // the child process
       {
 
-	close(STDOUT_FILENO);     // close the file descriptors inherited
+	close(STDOUT_FILENO);     // close the file descriptors inherited 
 	close(STDIN_FILENO);      //   from the parent
 
 	dup2(outfd[0], STDIN_FILENO);  // reassign the new fd
@@ -207,13 +206,13 @@ protected:
     // copy the model files to the temporaray directory
 
   }
-
+  
   virtual void TearDown() {
     // Code here will be called immediately after each test (right
     // before the destructor).
 
     // Remove the temporary directory and contents
-
+ 
     DIR * adir = opendir( tmpDirectory );
     std::string fullPath;
 
@@ -238,7 +237,7 @@ protected:
 		PRINT_INFO( "Deleting file from " << toFpath << std::endl );
 		if( remove( toFpath.c_str() ) != 0 ) {
 		  // untested
-		  std::string errStr = ( "Error deleting file : " +
+		  std::string errStr = ( "Error deleting file : " + 
 					 std::string( strerror(errno) ) );
 		  PRINT_ERROR( errStr << std::endl; );
 		}
@@ -258,7 +257,7 @@ protected:
   {
     // setup the model for running
 	char result[256];
-	strcpy(result,(BuildInfo::SOURCEPATH).c_str());
+	strcpy(result,SOURCEPATH);
 	strcat(result,"/tests/data/bmskel");
     copyModelToTmpDir( result );
 

@@ -3,11 +3,6 @@
  *
  *  Created on: Jul 27, 2010
  *      Author: TF (moved class CubicSpline from geo_mathlib.{h.cpp})
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
  */
 
 #ifndef CUBICSPLINE_H_
@@ -21,7 +16,7 @@ namespace MathLib
 class CubicSpline
 {
 public:
-	CubicSpline(const std::vector<double>& s, const std::vector<double>& val);
+	CubicSpline(const std::vector<double>&s, const std::vector<double>&val);
 	~CubicSpline();
 	double interpolation(double x) const;
 

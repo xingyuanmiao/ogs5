@@ -1,12 +1,3 @@
-/**
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
- *
- */
-
 // -*- C++ -*-
 
 #ifndef _TOKENBUF_H
@@ -18,13 +9,9 @@
 class TokenBuf
 {
 public:
-	enum Types
-	{
-		NONE,
-		INTEGER,
-		REAL,
-		CHARACTER,
-		STRING
+
+	enum Types {
+		NONE, INTEGER, REAL, CHARACTER, STRING
 	};
 
 	explicit TokenBuf(std::istream& stream, int internal_buf_size = 1024);
@@ -40,6 +27,7 @@ public:
 	bool get_non_empty_line(char* linbuf, int max_num);
 
 protected:
+
 	void readBuf();
 	void getNextToken(bool ignore_line_break);
 

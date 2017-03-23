@@ -1,97 +1,99 @@
-if( MSVC ) # VS2012 doesn't support correctly the tuples yet
-	add_definitions( /D _VARIADIC_MAX=10 )
-endif()
+IF( MSVC ) # VS2012 doesn't support correctly the tuples yet
+	ADD_DEFINITIONS( /D _VARIADIC_MAX=10 )
+ENDIF()
 
-add_subdirectory( gtest )
+ADD_SUBDIRECTORY( gtest )
 
 # Add tests which do not need testdata here:
-set ( SOURCES
+SET ( SOURCES
 	testrunner.cpp
 	testBase.cpp
 )
 
 # Add tests here if they need testdata
-if(TESTDATA_DIR_FOUND)
-	set(SOURCES ${SOURCES}
+IF(TESTDATA_DIR_FOUND)
+	SET(SOURCES ${SOURCES}
 		GEO/TestPointInTriangle.cpp
 		GEO/TestPointInPolygon.cpp
 	)
-endif()
+ENDIF()
 
-if (NOT MSVC)
-	set ( SOURCES ${SOURCES}
+IF (NOT MSVC)
+	SET ( SOURCES ${SOURCES}
 		testOgs.cxx
 		testBmSkel.cxx)
-endif ()
+ENDIF (NOT MSVC)
 
-set ( SOURCES ${SOURCES}
-	Matrix/testMatrix.cpp
-    )
-
-include_directories(
+INCLUDE_DIRECTORIES(
+	${CMAKE_SOURCE_DIR}/tests/gtest
 	${CMAKE_SOURCE_DIR}/Base
-	${CMAKE_SOURCE_DIR}/FEM
 	${CMAKE_SOURCE_DIR}/FileIO
 	${CMAKE_SOURCE_DIR}/GEO
 	${CMAKE_SOURCE_DIR}/MathLib
+	${CMAKE_SOURCE_DIR}/FEM
 	${CMAKE_SOURCE_DIR}/MSH
-	${CMAKE_SOURCE_DIR}/tests/gtest/include
-	${CMAKE_SOURCE_DIR}/tests/gtest/include/gtest
+	${CMAKE_SOURCE_DIR}/OGSProject
 )
 
-add_executable (testrunner ${SOURCES})
-target_link_libraries(testrunner
-	Base
-	FEM
-	FileIO
-	GEO
-	GTest
-	MathLib
-	MSH
+ADD_EXECUTABLE (testrunner ${SOURCES})
+TARGET_LINK_LIBRARIES(testrunner
+  GTest
+  Base
+  FileIO
+  GEO
+  MathLib
+  FEM
+  MSH
+  OGSProject
 )
 
-if (MSVC)
-	set(testrunnerExe ${EXECUTABLE_OUTPUT_PATH}/Release/testrunner)
-	set(QtTestrunnerExe ${EXECUTABLE_OUTPUT_PATH}/Release/QtTestrunner)
-else ()
-	set(testrunnerExe ${EXECUTABLE_OUTPUT_PATH}/testrunner)
-	if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
-		target_link_libraries( testrunner pthread )
-	endif() # "${CMAKE_SYSTEM_NAME}" MATCHES "Linux"
-	set (QtTestrunnerExe ${EXECUTABLE_OUTPUT_PATH}/QtTestrunner)
-endif() # MSVC
+IF (MSVC)
+	SET(testrunnerExe ${EXECUTABLE_OUTPUT_PATH}/Release/testrunner)
+	SET(QtTestrunnerExe ${EXECUTABLE_OUTPUT_PATH}/Release/QtTestrunner)
+ELSE ()
+	SET(testrunnerExe ${EXECUTABLE_OUTPUT_PATH}/testrunner)
+	IF("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
+		TARGET_LINK_LIBRARIES( testrunner pthread )
+	ENDIF() # "${CMAKE_SYSTEM_NAME}" MATCHES "Linux"
+	SET (QtTestrunnerExe ${EXECUTABLE_OUTPUT_PATH}/QtTestrunner)
+ENDIF() # MSVC
 
 # Add targets for running tests (with coverage reports)
-if(OGS_COVERAGE)
+IF(OGS_COVERAGE)
 	# Use cobertura output on Jenkins
-	if(JENKINS_URL)
+	IF(JENKINS_URL)
 		SETUP_TARGET_FOR_COVERAGE_COBERTURA(gtests_cobertura testrunner "gtests_coverage_results")
-		if(BENCHMARK_DIR_FOUND)
+		IF(BENCHMARK_DIR_FOUND)
 			SETUP_TARGET_FOR_COVERAGE_COBERTURA(benchmark_coverage ctest "benchmark_coverage_results" "-E;'Tests|FILE|EXCEED';-j;${PROCESSOR_COUNT}")
-		endif() # BENCHMARK_DIR_FOUND
+		ENDIF() # BENCHMARK_DIR_FOUND
 	# Use lcov output else
-	else()
+	ELSE()
 		SETUP_TARGET_FOR_COVERAGE(gtests testrunner "gtests_coverage_results")
-		if(BENCHMARK_DIR_FOUND)
+		IF(BENCHMARK_DIR_FOUND)
 			SETUP_TARGET_FOR_COVERAGE(benchmark_coverage ctest "benchmark_coverage_results" "-E;'Tests|FILE|EXCEED';-j;${PROCESSOR_COUNT}")
-		endif() # BENCHMARK_DIR_FOUND
-	endif() # JENKINS_URL
+		ENDIF() # BENCHMARK_DIR_FOUND
+	ENDIF() # JENKINS_URL
 
-else() # without coverage reports
-	add_custom_target(gtests testrunner	DEPENDS testrunner)
-	set_target_properties(testrunner gtests PROPERTIES FOLDER Testing)
-endif() # OGS_COVERAGE
+ELSE() # without coverage reports
+	ADD_CUSTOM_TARGET(gtests testrunner	DEPENDS testrunner)
+	SET_TARGET_PROPERTIES(testrunner gtests PROPERTIES FOLDER Testing)
+ENDIF() # OGS_COVERAGE
 
 # Either collect all gtests in one ctest run of testrunner executable
 # or run each gtest individually
-if (OGS_ONE_BIG_GTEST)
+IF (OGS_ONE_BIG_GTEST)
 	add_test (GTests ${testrunnerExe}  --gtest_output=xml:./)
-else ()
+ELSE (OGS_ONE_BIG_GTEST)
 	ADD_GOOGLE_TESTS ( ${testrunnerExe} ${SOURCES})
-endif ()
+ENDIF (OGS_ONE_BIG_GTEST)
 
 # add new test models here not all of these models will be needed, depending
 # on compile flags but it is safe to copy them all across
-if (NOT MSVC)
-	add_subdirectory( data/bmskel )
-endif ()
+IF (NOT MSVC)
+	ADD_SUBDIRECTORY( data/bmskel )
+ENDIF (NOT MSVC)
+
+IF(OGS_USE_QT AND TESTDATA_DIR_FOUND)
+  ADD_SUBDIRECTORY( gdiff ) # depends on Qt
+  ADD_SUBDIRECTORY( Qt )
+ENDIF()

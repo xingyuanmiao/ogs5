@@ -1,11 +1,6 @@
 /**
  * \file DateTools.h
  * 22/01/2010 KR Initial implementation
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
  */
 
 #ifndef DATETOOLS_H
@@ -21,7 +16,7 @@
 int date2int(int y, int m, int d);
 
 /**
- * Converts an integer to a string date "dd.mm.yyyy"
+ * Converts an integer to a string date "dd.mm.yyyy" 
  * Note: (Almost) no checks are performed if the int makes sense as a date.
  */
 std::string int2date(int date);
@@ -40,7 +35,7 @@ std::string date2string(double ddate);
  * \param s String containing the date, the expected format is "dd.mm.yyyy".
  * \return A number representing the date as dd.mm.yyyy.
  */
-int strDate2int(const std::string& s);
+int strDate2int(const std::string &s);
 
 /**
  * Converts a string containing a date into a double.
@@ -48,6 +43,6 @@ int strDate2int(const std::string& s);
  * \param s String containing the date, the expected format is conform to the xml date type, i.e. "yyyy-mm-dd".
  * \return A number representing the date as yyyymmdd.
  */
-int xmlDate2int(const std::string& s);
+int xmlDate2int(const std::string &s);
 
-#endif // DATETOOLS_H
+#endif //DATETOOLS_H

@@ -1,5 +1,5 @@
 
-include_directories(
+INCLUDE_DIRECTORIES(
 	./
 	../../Base
 	../../GEO
@@ -7,17 +7,19 @@ include_directories(
 	../../MathLib
 	../../FEM
 	../../MSH
+	../../Qt/OpenSG
 )
 
 # Create executables
-add_executable( testPointInTriangle testPointInTriangle.cpp )
+ADD_EXECUTABLE( testPointInTriangle testPointInTriangle.cpp )
 
-target_link_libraries( testPointInTriangle
+TARGET_LINK_LIBRARIES( testPointInTriangle
 	FEM
         MSH
        	GEO
         MathLib
        	FileIO
         Base
+       	OGSProject
 	${QT_LIBRARIES}
 )

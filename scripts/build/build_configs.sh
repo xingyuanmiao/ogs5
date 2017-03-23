@@ -7,7 +7,7 @@ SOURCE_LOCATION="$SOURCE_LOCATION/../.."
 while getopts "a:d:m" opt; do
 	case $opt in
 		a)
-			source "$SOURCE_LOCATION/scripts/base/architecture_option_win.sh"
+			source $SOURCE_LOCATION/scripts/base/architecture_option_win.sh
 			;;
 		d)
 			BUILD_LOCATION="$SOURCE_LOCATION/$OPTARG"
@@ -26,9 +26,9 @@ while getopts "a:d:m" opt; do
 	esac
 done
 
-source "$SOURCE_LOCATION/scripts/base/check_architecture_option_win.sh"
-source "$SOURCE_LOCATION/scripts/base/check_and_cleanup_build_directory.sh"
-source "$SOURCE_LOCATION/scripts/base/configure_compiler.sh"
+source $SOURCE_LOCATION/scripts/base/check_architecture_option_win.sh
+source $SOURCE_LOCATION/scripts/base/check_and_cleanup_build_directory.sh
+source $SOURCE_LOCATION/scripts/base/configure_compiler.sh
 
 # Executables will be copied to Release/
 mkdir -p Release
@@ -83,8 +83,8 @@ do
 	mkdir -p $build_dir && cd $build_dir
 
 	# Run CMake
-	cmake -D$config_cmake=ON -DOGS_DONT_USE_QT=ON -DCMAKE_BUILD_TYPE=Release $cmake_args -G "$CMAKE_GENERATOR" "$SOURCE_LOCATION"
-	cmake -G "$CMAKE_GENERATOR" "$SOURCE_LOCATION"
+	cmake -D$config_cmake=ON -DOGS_DONT_USE_QT=ON -DCMAKE_BUILD_TYPE=Release $cmake_args -G "$CMAKE_GENERATOR" $SOURCE_LOCATION
+	cmake -G "$CMAKE_GENERATOR" $SOURCE_LOCATION
 
 	# Build
 	cmake --build . --config Release $BUILD_ARGS
@@ -100,6 +100,18 @@ do
 	cd ..
 
 done
+
+# Redistributable FEM config
+rm -rf build_fem_redist
+mkdir build_fem_redist && cd build_fem_redist
+cmake -DOGS_FEM=ON -DOGS_NO_EXTERNAL_LIBS=ON -DOGS_PACKAGING=ON -DCMAKE_BUILD_TYPE=Release -G "$CMAKE_GENERATOR" $SOURCE_LOCATION
+cmake -G "$CMAKE_GENERATOR" $SOURCE_LOCATION
+cmake --build . --config Release --target package $BUILD_ARGS
+if [ "${?}" -ne "0" ] ; then
+	returncode=1
+fi
+cp *.tar.gz ../Release/
+cd ..
 
 echo "exit code is ${returncode}"
 exit ${returncode}

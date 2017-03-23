@@ -1,11 +1,6 @@
 /**
  * \file Writer.h
  * 13/02/2012 LB Initial implementation
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
  */
 
 #ifndef WRITER_H
@@ -17,6 +12,7 @@
 
 namespace FileIO
 {
+
 /// @brief Base class which enables writing an object to string, stringstream
 /// or file. Also formatting (precision, scientific notation of decimal values)
 /// can be set.
@@ -26,7 +22,7 @@ class Writer
 {
 public:
 	Writer();
-	virtual ~Writer(){};
+	virtual ~Writer() {};
 
 	/// @brief Writes the object to a string.
 	std::string writeToString();
@@ -49,6 +45,7 @@ protected:
 	std::stringstream _out;
 
 private:
+
 };
 
 } // namespace FileIO

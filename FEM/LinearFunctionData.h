@@ -3,11 +3,6 @@
  *
  *  Created on: Sep 1, 2011
  *      Author: TF
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
  */
 
 #ifndef LINEARFUNCTIONDATA_H_
@@ -33,18 +28,22 @@ public:
 
 	   WW 24.08.2011
 	 */
-	LinearFunctionData(std::ifstream& ins, int num_var = -1);
+	LinearFunctionData(std::ifstream &ins, int num_var = -1);
 	~LinearFunctionData();
 
 	double getValue(size_t dom_i, double x, double y, double z) const;
 	double getValue(double x, double y, double z) const;
-	size_t* getSubDomIndex() const { return _subdom_index; }
+	size_t* getSubDomIndex() const
+	{
+		return _subdom_index;
+	}
+
 private:
 	size_t _ndata;
 	size_t* _subdom_index;
 	// Coefficents for linear distribution function
 	// f = a0+b0*x+c0*y+d0*z
-	double *_a0, *_b0, *_c0, *_d0;
+	double* _a0, * _b0, * _c0, * _d0;
 };
 
 #endif /* LINEARFUNCTIONDATA_H_ */

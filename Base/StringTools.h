@@ -1,12 +1,3 @@
-/**
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
- *
- */
-
 #ifndef STRINGTOOLS_H
 #define STRINGTOOLS_H
 
@@ -23,7 +14,7 @@
  *  \param delim Character indicating that the string should be splitted
  *  \return
  */
-std::list<std::string> splitString(const std::string& str, char delim);
+std::list<std::string> splitString(const std::string &str, char delim);
 
 /**
  *   Replaces a substring with another in a string
@@ -32,8 +23,8 @@ std::list<std::string> splitString(const std::string& str, char delim);
  *  \param stringToReplace Search and replace in this string
  *  \return The modified string
  */
-std::string replaceString(const std::string& searchString,
-                          const std::string& replaceString,
+std::string replaceString(const std::string &searchString,
+                          const std::string &replaceString,
                           std::string stringToReplace);
 
 /**
@@ -41,8 +32,7 @@ std::string replaceString(const std::string& searchString,
  *  \param d The number to be converted
  *  \return The number as string
  */
-template <typename T>
-std::string number2str(T d)
+template<typename T> std::string number2str(T d)
 {
 	std::stringstream out;
 	out << d;
@@ -55,10 +45,9 @@ std::string number2str(T d)
  *  \param str string to be converted
  *  \return the number
  */
-template <typename T>
-T str2number(const std::string& str)
+template<typename T> T str2number (const std::string &str)
 {
-	std::stringstream strs(str, std::stringstream::in | std::stringstream::out);
+	std::stringstream strs (str, std::stringstream::in | std::stringstream::out);
 	T v;
 	strs >> v;
 	return v;
@@ -67,41 +56,34 @@ T str2number(const std::string& str)
 /**
  * Strip whitespace (or other characters) from the beginning and end of a string.
  */
-void trim(std::string& str, char ch = ' ');
+void trim(std::string &str, char ch = ' ');
 
-/**
- * Removes all occurences of c from the beginning of str.
- *
- * Leves the original string unchanged.
- */
-std::string ltrim(const std::string& str, const char c);
 
-/**
- * Removes all occurences of c from the end of str
- *
- * Leves the original string unchanged.
- */
-std::string rtrim(const std::string& str, const char c);
+namespace BaseLib {
 
-namespace BaseLib
-{
 /**
  * Extract the filename from a path
  */
-std::string getFileNameFromPath(const std::string& str, bool with_extension = false);
+std::string getFileNameFromPath(const std::string &str, bool with_extension = false);
 
 /**
  * Checks if file_name already contains a qualified path and if not copies the path from source.
  */
-std::string copyPathToFileName(const std::string& file_name, const std::string& source);
+std::string copyPathToFileName(const std::string &file_name, const std::string &source);
 
 /**
  * extracts the path of a fully qualified path name of the file
  * @param fname [input] the fully qualified path name of the file
  * @param path [output] the path of the fully qualified path name of the file
  */
-void extractPath(std::string const& fname, std::string& path);
+void extractPath (std::string const& fname, std::string& path);
+
+
 
 } // end namespace BaseLib
 
-#endif // STRINGTOOLS_H
+#ifdef MSVC
+void correctScientificNotation(std::string filename, size_t precision = 0);
+#endif
+
+#endif //STRINGTOOLS_H

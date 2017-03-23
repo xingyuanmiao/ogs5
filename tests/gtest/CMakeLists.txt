@@ -1,19 +1,11 @@
 # This is Googletest 1.6 compressed to 2 source files
 
-if (MSVC)
-  add_definitions (/D_VARIADIC_MAX=10)
-endif ()
+IF (HAVE_PTHREADS)
+  ADD_DEFINITIONS (-DGTEST_HAS_PTHREAD=1)
+ELSE ()
+  ADD_DEFINITIONS (-DGTEST_HAS_PTHREAD=0)
+ENDIF ()
 
-if (HAVE_PTHREADS)
-  add_definitions (-DGTEST_HAS_PTHREAD=1)
-else ()
-  add_definitions (-DGTEST_HAS_PTHREAD=0)
-endif ()
+ADD_LIBRARY (GTest gtest.h gtest-all.cc)
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
-add_library (GTest src/gtest-all.cc)
-
-set_target_properties(GTest PROPERTIES FOLDER Testing)
+SET_TARGET_PROPERTIES(GTest PROPERTIES FOLDER Testing)

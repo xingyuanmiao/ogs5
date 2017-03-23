@@ -3,11 +3,6 @@
  *
  *  Created on: Jun 18, 2010
  *      Author: TF
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
  */
 
 // STL
@@ -16,53 +11,52 @@
 // FEM
 #include "GeoInfo.h"
 
-GeoInfo::GeoInfo() : _geo_type(GEOLIB::INVALID), _geo_obj(NULL)
-{
-}
+GeoInfo::GeoInfo() :
+	_geo_type(GEOLIB::INVALID), _geo_obj(NULL)
+{}
 
-GeoInfo::GeoInfo(GEOLIB::GEOTYPE geo_type, const GEOLIB::GeoObject* geo_obj) : _geo_type(geo_type), _geo_obj(geo_obj)
-{
-}
+GeoInfo::GeoInfo(GEOLIB::GEOTYPE geo_type, const GEOLIB::GeoObject* geo_obj) :
+	_geo_type(geo_type), _geo_obj(geo_obj)
+{}
 
 GeoInfo::~GeoInfo()
-{
-}
+{}
 
-GEOLIB::GEOTYPE GeoInfo::getGeoType() const
+GEOLIB::GEOTYPE GeoInfo::getGeoType () const
 {
 	return _geo_type;
 }
 
-std::string GeoInfo::getGeoTypeAsString() const
+std::string GeoInfo::getGeoTypeAsString () const
 {
 	switch (_geo_type)
 	{
-		case GEOLIB::POINT:
-			return "POINT";
-		case GEOLIB::POLYLINE:
-			return "POLYLINE";
-		case GEOLIB::SURFACE:
-			return "SURFACE";
-		case GEOLIB::VOLUME:
-			return "VOLUME";
-		case GEOLIB::GEODOMAIN:
-			return "DOMAIN";
-		default:
-			return "";
+	case GEOLIB::POINT:
+		return "POINT";
+	case GEOLIB::POLYLINE:
+		return "POLYLINE";
+	case GEOLIB::SURFACE:
+		return "SURFACE";
+	case GEOLIB::VOLUME:
+		return "VOLUME";
+	case GEOLIB::GEODOMAIN:
+		return "DOMAIN";
+	default:
+		return "";
 	}
 }
 
-void GeoInfo::setGeoType(GEOLIB::GEOTYPE geo_type)
+void GeoInfo::setGeoType (GEOLIB::GEOTYPE geo_type)
 {
 	_geo_type = geo_type;
 }
 
-const GEOLIB::GeoObject* GeoInfo::getGeoObj() const
+const GEOLIB::GeoObject* GeoInfo::getGeoObj () const
 {
 	return _geo_obj;
 }
 
-void GeoInfo::setGeoObj(const GEOLIB::GeoObject* geo_obj)
+void GeoInfo::setGeoObj (const GEOLIB::GeoObject* geo_obj)
 {
 	_geo_obj = geo_obj;
 }

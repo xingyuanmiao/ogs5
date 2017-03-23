@@ -3,11 +3,6 @@
  *
  *  Created on: Sep 2, 2010
  *      Author: TF
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
  */
 
 #ifndef PROCESSINFO_H_
@@ -41,49 +36,50 @@ public:
 	 * @param pcs a pointer to the process
 	 * @return
 	 */
-	ProcessInfo(FiniteElement::ProcessType pcs_type, FiniteElement::PrimaryVariable pcs_pv, CRFProcess* pcs);
+	ProcessInfo (FiniteElement::ProcessType pcs_type, FiniteElement::PrimaryVariable pcs_pv, CRFProcess* pcs);
 
 	/**
 	 * Sets the process type.
 	 * @param pcs_type the process type, for valid values see enum ProcessType
 	 */
-	void setProcessType(FiniteElement::ProcessType pcs_type);
+	void setProcessType (FiniteElement::ProcessType pcs_type);
 
 	/**
 	 * Sets the value for the primary variable
 	 * @param pcs_pv value for primary variable, possible values are documented in enum PrimaryVariable
 	 */
-	void setProcessPrimaryVariable(FiniteElement::PrimaryVariable pcs_pv);
+	void setProcessPrimaryVariable (FiniteElement::PrimaryVariable pcs_pv);
 
 	/**
 	 * Sets the value for the pointer to an object of class CRFProcess.
 	 * @param pcs the pointer to an object of class CRFProcess
 	 */
-	void setProcess(CRFProcess* pcs);
+	void setProcess (CRFProcess* pcs);
 
 	/**
 	 * Get the process type.
 	 * @return the process type
 	 */
-	FiniteElement::ProcessType getProcessType() const;
+	FiniteElement::ProcessType getProcessType () const;
 
 	/**
 	 * Get the primary variable of the process.
 	 * @return the primary variable of the process
 	 */
-	FiniteElement::PrimaryVariable getProcessPrimaryVariable() const;
+	FiniteElement::PrimaryVariable getProcessPrimaryVariable () const;
 
-	/** CB
-	 * Get the comp vec index of the process.
-	 * @Return the comp vec index of the process
+      /** CB
+       * Get the comp vec index of the process.
+       * @Return the comp vec index of the process
+       */
+      int getProcessCompVecIndex () const;
+
+
+      /**
+	 * Get a pointer to an object of type CRFProcess.
+	 * @return a pointer to an object of type CRFProcess
 	 */
-	int getProcessCompVecIndex() const;
-
-	/**
-   * Get a pointer to an object of type CRFProcess.
-   * @return a pointer to an object of type CRFProcess
-   */
-	CRFProcess* getProcess() const;
+	CRFProcess* getProcess () const;
 
 	virtual ~ProcessInfo();
 
@@ -102,4 +98,4 @@ protected:
 	 */
 	CRFProcess* _pcs;
 };
-#endif /* PROCESSINFO_H_ */
+#endif                                            /* PROCESSINFO_H_ */

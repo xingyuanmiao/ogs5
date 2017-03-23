@@ -1,11 +1,23 @@
-set( HEADERS
+# Source files
+
+set( SOURCES
+	Stiff_Bulirsch-Stoer.h
+    StepperBulischStoer.h
 	BoundaryCondition.h
-	PhysicalConstant.h
-	Constrained.h
+	break.h
+	BHEAbstract.h
+	BHE_1U.h
+	BHE_2U.h
+	BHE_CXC.h
+	BHE_CXA.h
+	BHE_Net.h
+	BHE_Net_ELE_Abstract.h
+	BHE_Net_ELE_Distributor.h
+	BHE_Net_ELE_HeatPump.h
+	BHE_Net_ELE_Pipe.h
+	BHE_Net_ELE_Pipe_Inner_1U.h
 	conversion_rate.h
-	DistributionInfo.h
-	DUMUX.h
-	Eclipse.h
+	display.h
 	eos.h
 	fem_ele.h
 	fem_ele_std.h
@@ -14,15 +26,14 @@ set( HEADERS
 	FEMEnums.h
 	femlib.h
 	files0.h
-	GeoInfo.h
 	InitialCondition.h
-	LinearFunctionData.h
+	makros.h
 	mathlib.h
 	matrix_class.h
-	Output.h
+	SparseMatrixDOK.h
+	memory.h
 	pcs_dm.h
 	problem.h
-	ProcessInfo.h
 	prototyp.h
 	rf_bc_new.h
 	rf_fct.h
@@ -44,41 +55,50 @@ set( HEADERS
 	rfmat_cp.h
 	solver.h
 	SourceTerm.h
-	SparseMatrixDOK.h
-	Stiff_Bulirsch-Stoer.h
+	timer.h
 	tools.h
 	vtk.h
-	OutputTools.h
-	ShapeFunctionPool.h
-)
-
-set( SOURCES
-	BoundaryCondition.cpp
-	CAP_IO.cpp
-	conversion_rate.cpp
+	Eclipse.h
+	DUMUX.h
+	GeoInfo.h
+	ProcessInfo.h
+	DistributionInfo.h
+	LinearFunctionData.h
+	Output.h
+	GeoInfo.cpp
+	ProcessInfo.cpp
 	DistributionInfo.cpp
-	DUMUX.cpp
-	Eclipse.cpp
+	LinearFunctionData.cpp
+	Stiff_Bulirsch-Stoer.cpp
+	BoundaryCondition.cpp
+	break.cpp
+	BHE_1U.cpp
+	BHE_2U.cpp
+	BHE_CXC.cpp
+	BHE_CXA.cpp
+	BHE_Net.cpp
+	BHE_Net_ELE_Distributor.cpp
+	BHE_Net_ELE_HeatPump.cpp
+	BHE_Net_ELE_Pipe.cpp
+	BHE_Net_ELE_Pipe_Inner_1U.cpp
+	conversion_rate.cpp
+	display.cpp
 	eos.cpp
 	fem_ele.cpp
 	fem_ele_std.cpp
 	fem_ele_std1.cpp
-	fem_ele_std_tes.cpp
-	fem_ele_std_tneq.cpp
 	fem_ele_vec.cpp
+	femlib.cpp
 	FEMCondition.cpp
 	FEMEnums.cpp
-	femlib.cpp
 	files0.cpp
-	GeoInfo.cpp
 	InitialCondition.cpp
-	LinearFunctionData.cpp
 	mathlib.cpp
 	matrix_class.cpp
-	Output.cpp
+    SparseMatrixDOK.cpp
+	memory.cpp
 	pcs_dm.cpp
 	problem.cpp
-	ProcessInfo.cpp
 	rf_bc_new.cpp
 	rf_fct.cpp
 	rf_fluid_momentum.cpp
@@ -93,135 +113,161 @@ set( SOURCES
 	rf_pcs.cpp
 	rf_random_walk.cpp
 	rf_react.cpp
-	rf_react_cap.cpp
 	rf_react_int.cpp
 	rf_st_new.cpp
 	rf_tim_new.cpp
-	rfmat_cp.cpp
+	rfmat_cp.cpp	
 	SourceTerm.cpp
-	SparseMatrixDOK.cpp
-	Stiff_Bulirsch-Stoer.cpp
+	timer.cpp
 	tools.cpp
 	vtk.cpp
-	ShapeFunctionPool.cpp
+	Eclipse.cpp
+	DUMUX.cpp
+	Output.cpp
+    CAP_IO.h 
+    CAP_IO.cpp
+    rf_react_cap.h 
+    rf_react_cap.cpp 	
 )
 
-if(NOT OGS_LSOLVER STREQUAL PETSC)
-	set( SOURCES ${SOURCES} par_ddc.h par_ddc.cpp)
-endif()
+IF(OGS_FEM_PETSC OR OGS_FEM_PETSC_GEMS)
+ SET( SOURCES ${SOURCES} rf_pcs1.cpp fct_mpi.h fct_mpi.cpp)
+ELSE(OGS_FEM_PETSC OR OGS_FEM_PETSC_GEMS)
+  SET( SOURCES ${SOURCES} par_ddc.h par_ddc.cpp)
+## New sparse class. WW
+IF(OGS_FEM_SP OR OGS_FEM_MPI OR OGS_FEM_GEMS OR OGS_FEM_BRNS OR OGS_FEM_PQC OR OGS_FEM_MKL OR OGS_FEM_LIS OR OGS_FEM_JFNK )
+	SET( SOURCES ${SOURCES} equation_class.h equation_class.cpp )
+    IF(OGS_FEM_JFNK)
+       SET( SOURCES ${SOURCES} rf_pcs1.cpp ) 
+    ENDIF(OGS_FEM_JFNK)	
+ELSE(OGS_FEM_SP OR OGS_FEM_MPI OR OGS_FEM_GEMS OR OGS_FEM_BRNS OR OGS_FEM_PQC OR OGS_FEM_MKL OR OGS_FEM_LIS OR OGS_FEM_JFNK)
+	SET( SOURCES ${SOURCES} solver.h solver.cpp matrix_routines.h matrix_routines.cpp)
+ENDIF(OGS_FEM_SP OR OGS_FEM_MPI OR OGS_FEM_GEMS OR OGS_FEM_BRNS OR OGS_FEM_PQC OR OGS_FEM_MKL OR OGS_FEM_LIS OR OGS_FEM_JFNK)
+ENDIF()
 
+IF(OGS_FEM_BRNS)
+	SET( SOURCES ${SOURCES} rf_REACT_BRNS.h rf_REACT_BRNS.cpp ) 
+ENDIF(OGS_FEM_BRNS)
 
+IF(OGS_FEM_GEMS OR OGS_FEM_PETSC_GEMS)
+	SET( SOURCES ${SOURCES} rf_REACT_GEM.h rf_REACT_GEM.cpp ) 
+ENDIF(OGS_FEM_GEMS OR OGS_FEM_PETSC_GEMS)
 
-if(OGS_LSOLVER STREQUAL RF)
-	set( HEADERS ${HEADERS} solver.h matrix_routines.h)
-	set( SOURCES ${SOURCES} solver.cpp matrix_routines.cpp)
-elseif(OGS_LSOLVER STREQUAL PETSC)
-	set( SOURCES ${SOURCES} rf_pcs1.cpp fct_mpi.h fct_mpi.cpp)
-elseif(OGS_LSOLVER STREQUAL SP)
-	set( SOURCES ${SOURCES} equation_class.h equation_class.cpp )
-	if (PARALLEL_USE_MPI)
-		set(HEADERS ${HEADERS} SplitMPI_Communicator.h )
-		set(SOURCES ${SOURCES} SplitMPI_Communicator.cpp )
-	endif ()
-endif()
-
-if(OGS_CONFIG STREQUAL JFNK)
-	set( SOURCES ${SOURCES} rf_pcs1.cpp )
-endif()
-
-if(OGS_CHEMSOLVER STREQUAL BRNS)
-	set( SOURCES ${SOURCES} rf_REACT_BRNS.h rf_REACT_BRNS.cpp )
-endif()
-
-if(OGS_CHEMSOLVER STREQUAL GEMS)
-	set( SOURCES ${SOURCES} rf_REACT_GEM.h rf_REACT_GEM.cpp )
-endif()
 
 include_directories(
-	${CMAKE_SOURCE_DIR}/Base
 	${CMAKE_SOURCE_DIR}/FEM
-	${CMAKE_SOURCE_DIR}/FileIO
-	${CMAKE_SOURCE_DIR}/FileIO/FEMIO
-	${CMAKE_SOURCE_DIR}/FileIO/MeshIO
-	${CMAKE_SOURCE_DIR}/GCC
-	${CMAKE_SOURCE_DIR}/GEM
-	${CMAKE_SOURCE_DIR}/GEO
+	${CMAKE_SOURCE_DIR}/Base
 	${CMAKE_SOURCE_DIR}/MathLib
+	${CMAKE_SOURCE_DIR}/GEO
+	${CMAKE_SOURCE_DIR}/FileIO
+	${CMAKE_SOURCE_DIR}/FileIO/MeshIO
+	${CMAKE_SOURCE_DIR}/FileIO/FEMIO
 	${CMAKE_SOURCE_DIR}/MSH
+	${CMAKE_SOURCE_DIR}/GEM
+	${CMAKE_SOURCE_DIR}/OGSProject
+	${CMAKE_SOURCE_DIR}/GCC
 )
+
+
+IF((NOT OGS_FEM_GEMS) AND (NOT OGS_FEM_PETSC_GEMS))
+        include_directories(${CMAKE_SOURCE_DIR}/FEM/Eigen)
+ENDIF((NOT OGS_FEM_GEMS) AND (NOT OGS_FEM_PETSC_GEMS))
+
+IF (LIS)
+  INCLUDE_DIRECTORIES(${LIS_INCLUDE_DIR})
+ENDIF (LIS)
+
+IF (MKL)
+  INCLUDE_DIRECTORIES(${MKL_INCLUDES})
+ENDIF (MKL)
+
+IF(OGS_FEM_PQC)
+  INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/PQC)
+ENDIF (OGS_FEM_PQC)
+
+IF (PARALLEL_USE_MPI)
+	INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
+ENDIF (PARALLEL_USE_MPI)
 
 # Create the library
-add_library( FEM STATIC ${HEADERS} ${SOURCES} )
+add_library( FEM STATIC ${SOURCES} )
 
-target_link_libraries(FEM
+target_link_libraries( 
+	FEM
 	Base
 	FileIO
+ 	GEO
+ 	MSH
+	OGSProject
 	GCC
-	GEO
-	MSH
 )
 
-if(LIS)
-	include_directories(${LIS_INCLUDE_DIR})
-	target_link_libraries( FEM ${LIS_LIBRARIES} )
-	if (WIN32)
-		set_target_properties( FEM PROPERTIES LINK_FLAGS "/NODEFAULTLIB:libcmt" )
-	endif()
-endif()
-
-if(MKL)
-	include_directories(${MKL_INCLUDES})
-	target_link_libraries( FEM ${MKL_LIBRARIES} )
-endif()
-
-if(OGS_CHEMSOLVER STREQUAL PQC)
-	include_directories(${CMAKE_SOURCE_DIR}/ThirdParty/PQC)
-	target_link_libraries(FEM PQC)
-endif()
-
-if(OGS_CHEMSOLVER STREQUAL IPQC)
-	include_directories(${CMAKE_SOURCE_DIR}/ThirdParty/IPQC/src)
-endif ()
-
-if(PARALLEL_USE_MPI)
-	target_link_libraries(FEM ${MPI_CXX_LIBRARIES})
-endif()
+IF(OGS_FEM_PQC)
+   target_link_libraries(FEM PQC)
+ENDIF(OGS_FEM_PQC)
 
 if (WIN32)
-	if (OGS_CHEMSOLVER STREQUAL GEMS)
-		target_link_libraries( FEM GEM )
-	endif ()
-	if (OGS_CHEMSOLVER STREQUAL BRNS)
+	if (OGS_FEM_GEMS)
+		target_link_libraries( FEM GEM ) 
+	endif (OGS_FEM_GEMS)
+	if (LIS)
+		target_link_libraries( FEM ${LIS_LIBRARIES} ) 
+		set_target_properties( FEM PROPERTIES LINK_FLAGS "/NODEFAULTLIB:libcmt" )
+	endif (LIS)
+	if (MKL)
+		target_link_libraries( FEM ${MKL_LIBRARIES} )
+	endif (MKL)
+	if (OGS_FEM_BRNS)
 		target_link_libraries( FEM BrnsDll )
-	endif ()
-endif ()
+	endif (OGS_FEM_BRNS)
+	if (OGS_FEM_CHEMAPP)
+		target_link_libraries( FEM ca_vc_e )
+	endif (OGS_FEM_CHEMAPP)
+	if (PARALLEL_USE_MPI)
+		SET( CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${MPI_COMPILE_FLAGS} )
+		target_link_libraries( FEM ${MPI_LIBRARIES} )
+	endif (PARALLEL_USE_MPI)
+endif (WIN32)
 
 if (UNIX)
-	if (OGS_CHEMSOLVER STREQUAL BRNS)
-		target_link_libraries( FEM ${CMAKE_DL_LIBS} ${LAPACK_LIBRARIES} )
-	endif ()
-endif ()
+	if (OGS_FEM_BRNS)
+		target_link_libraries( FEM dl )
+	endif (OGS_FEM_BRNS)
 
-if (OGS_CHEMSOLVER STREQUAL CAP)
-	include_directories (  ${CMAKE_SOURCE_DIR}/CMP )
-	target_link_libraries (
-		FEM
-		GEO
-		MSH
-		CMP
-	)
-	if (UNIX)
-		target_link_libraries (
-			FEM
-			ChemAppCS_64
-			EChemAppS_64
-		)
-	endif ()
-endif ()
+	if (LIS)
+		target_link_libraries( FEM ${LIS_LIBRARIES} )
+	endif (LIS)
 
-if(OGS_USE_CVODE)
-	target_link_libraries(FEM
-		sundials_cvode_static
-		sundials_nvecserial_static
-	)
-endif()
+	if (MKL)
+		target_link_libraries( FEM ${MKL_LIBRARIES} )
+	endif (MKL)
+	if (PARALLEL_USE_MPI)
+#		SET( CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${MPI_COMPILE_FLAGS} )
+		target_link_libraries( FEM ${MPI_LIBRARIES} )
+	endif (PARALLEL_USE_MPI)
+endif (UNIX)
+
+IF (OGS_FEM_CHEMAPP)
+	INCLUDE_DIRECTORIES ( ${CMAKE_SOURCE_DIR}/EQL )
+	TARGET_LINK_LIBRARIES ( FEM EQL )
+ENDIF (OGS_FEM_CHEMAPP)
+
+
+IF (OGS_FEM_CAP)
+	INCLUDE_DIRECTORIES (  ${CMAKE_SOURCE_DIR}/CMP )
+	TARGET_LINK_LIBRARIES ( 	
+	 FEM
+ 	 GEO
+ 	 MSH
+ 	 CMP 
+ 	)
+    IF (UNIX)
+        TARGET_LINK_LIBRARIES ( 	
+          FEM
+          ChemAppCS_64
+          EChemAppS_64
+      )
+    ENDIF (UNIX)
+ENDIF (OGS_FEM_CAP)
+
+

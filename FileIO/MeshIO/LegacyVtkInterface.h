@@ -1,11 +1,6 @@
 /**
  * \file LegacyVtkInterface.h
  * 05/04/2011 LB Initial implementation
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
  */
 
 #ifndef LEGACYVTKINTERFACE_H
@@ -36,12 +31,9 @@ class LegacyVtkInterface
 {
 public:
 	LegacyVtkInterface(MeshLib::CFEMesh* mesh,
-	                   std::vector<std::string>
-	                       pointArrayNames,
-	                   std::vector<std::string>
-	                       cellArrayNames,
-	                   std::vector<std::string>
-	                       materialPropertyArrayNames,
+	                   std::vector<std::string> pointArrayNames,
+	                   std::vector<std::string> cellArrayNames,
+	                   std::vector<std::string> materialPropertyArrayNames,
 	                   std::string meshTypeName,
 	                   ProcessInfo* processInfo);
 	virtual ~LegacyVtkInterface();
@@ -49,25 +41,24 @@ public:
 	void WriteDataVTK(int number, double simulation_time, std::string baseFilename) const;
 #if defined(USE_PETSC)
 	void WriteDataVTKPETSC(int number, double simulation_time, std::string baseFilename) const;
-#endif
+#endif	
 	double RoundDoubleVTK(double MyZahl);
-
 protected:
 	void WriteVTKHeader(std::fstream&, int, double) const;
 	void WriteVTKPointData(std::fstream&) const;
 	void WriteVTKCellData(std::fstream&) const;
 	void WriteVTKDataArrays(std::fstream&) const;
-	void WriteELEVelocity(std::fstream& vtk_file) const;
+	void WriteELEVelocity(std::fstream &vtk_file) const;
 #if defined(USE_PETSC)
 	void WriteVTKPointDataPETSC(PetscViewer) const;
 	void WriteVTKCellDataPETSC(PetscViewer) const;
 	void WriteVTKDataArraysPETSC(PetscViewer) const;
-#endif
-
-	void printScalarArray(std::string arrayName, std::fstream& vtk_file) const;
+#endif	
+	
+    void printScalarArray(std::string arrayName, std::fstream &vtk_file) const;
 
 	// Copied from COutput
-	CRFProcess* GetPCS_ELE(const std::string& var_name) const;
+	CRFProcess* GetPCS_ELE(const std::string &var_name) const;
 
 	MeshLib::CFEMesh* _mesh;
 	std::string _processType;

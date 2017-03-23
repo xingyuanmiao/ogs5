@@ -1,40 +1,62 @@
+# Source files 
 set( HEADERS
-	Density.h
+#	Activity.h
+	Density.h	
 	DiffAL.h
 	DiffOH.h
+	dllheader.h
 	eqbrm.h
+	export.h
+	Fluid.h
 	HKF.h
 	IAPWS-IF97.h
 	IO.h
 	logk.h
 	NR.h
+	PDE.h
+	PITZcalc.h
 	PITZdata.h
+	slop98.h
 	species.h
 	VLE.h
 	WATEQdata.h
 )
 
 set ( SOURCES
-	Density.cpp
+#	Activity.cpp
+	Density.cpp	
+	DiffAL.cpp
 	DiffOH.cpp
+	eqbrm.cpp
+	export.cpp
+	Fluid.cpp
 	HKF.cpp
 	IAPWS-IF97.cpp
 	IO.cpp
 	logk.cpp
 	NR.cpp
+	PDE.cpp
+	PITZcalc.cpp
 	PITZdata.cpp
 	VLE.cpp
 )
 
 # Create the library
-add_library( GCC STATIC ${HEADERS} ${SOURCES} )
-target_link_libraries( GCC BrentLib )
-include_directories( ${CMAKE_SOURCE_DIR}/GCC )
+add_library( GCC STATIC 
+	     ${SOURCES}
+             ${HEADERS} 
+)
+include_directories(
+        ${CMAKE_SOURCE_DIR}/GCC
+)
 
-if (WIN32)
-	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DIPMGEMPLUGIN")
-endif ()
 
-if (UNIX)
-	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DIPMGEMPLUGIN -D__unix")
-endif ()
+##SET_TARGET_PROPERTIES(GCC PROPERTIES LINKER_LANGUAGE CXX)
+
+IF (WIN32)
+	SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DIPMGEMPLUGIN")
+ENDIF (WIN32)
+
+IF (UNIX)
+	SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DIPMGEMPLUGIN -D__unix")
+ENDIF (UNIX)

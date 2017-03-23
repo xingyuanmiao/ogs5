@@ -3,11 +3,6 @@
  *
  *  Created on: Sep 29, 2010
  *      Author: TF
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
  */
 
 #ifndef GEOIO_H_
@@ -51,11 +46,11 @@ public:
 	 * @param unique_geo_name identifier of the geometric data within the geometric manager GEOObjects
 	 * @return false if an error occured, else true
 	 */
-	static bool readGeoInfo(GeoInfo* geo_info,
-	                        std::istream& in_str,
-	                        std::string& geo_name,
-	                        const GEOLIB::GEOObjects& geo_obj,
-	                        const std::string& unique_geo_name);
+	static bool readGeoInfo (GeoInfo* geo_info,
+	                         std::istream& in_str,
+	                         std::string& geo_name,
+	                         const GEOLIB::GEOObjects& geo_obj,
+	                         const std::string& unique_geo_name);
 };
 } // ned namespace FileIO
 

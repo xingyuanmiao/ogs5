@@ -1,12 +1,3 @@
-/**
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
- *
- */
-
 ////////////////////////////////////////////////////////////////
 //   Filename: rf_fluid_momentum.h
 //
@@ -22,7 +13,7 @@
 //#include "rf_vel_new.h"
 #include "fem_ele.h"
 #include "fem_ele_std.h"
-#ifndef NEW_EQS // WW. 06.11.2008
+#ifndef NEW_EQS                                   //WW. 06.11.2008
 #include "matrix_routines.h"
 #endif
 #include "mathlib.h"
@@ -31,21 +22,21 @@ class PlaneSet
 {
 public:
 	int eleIndex;
-	double ratio; // ratio: contribution of velocity to this plane.
+	double ratio;                         // ratio: contribution of velocity to this plane.
 
 	double V[3];
 	double norm[3];
-	double Eele[3]; // The vector from the crossroad to the center of the connected element
+	double Eele[3];                       // The vector from the crossroad to the center of the connected element
 	// that lies in one of the connected planes.
 
 	// Constructor
 	PlaneSet(void);
 
-	PlaneSet& operator=(const PlaneSet& B)
+	PlaneSet&operator=(const PlaneSet& B)
 	{
 		eleIndex = B.eleIndex;
 		ratio = B.ratio;
-		for (int i = 0; i < 3; ++i)
+		for(int i = 0; i < 3; ++i)
 		{
 			V[i] = B.V[i];
 			norm[i] = B.norm[i];
@@ -58,8 +49,9 @@ public:
 class CrossRoad
 {
 public:
+
 	int numOfThePlanes;
-	int Index; // This can be node or edge index
+	int Index;                            // This can be node or edge index
 	// depending on crossroad or edge
 
 	PlaneSet* plane;
@@ -106,4 +98,4 @@ private:
 };
 
 extern void FMRead(std::string pcs_name = "");
-// WWextern void DATWriteHETFile(const char* file_name);
+//WWextern void DATWriteHETFile(const char* file_name);

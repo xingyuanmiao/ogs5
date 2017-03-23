@@ -3,11 +3,6 @@
  *
  *  Created on: Apr 3, 2012
  *      Author: fischeth
- * \copyright
- * Copyright (c) 2015, OpenGeoSys Community (http://www.opengeosys.org)
- *            Distributed under a Modified BSD License.
- *              See accompanying file LICENSE.txt or
- *              http://www.opengeosys.org/project/license
  */
 
 #ifndef POLYLINEWITHSEGMENTMARKER_H_
@@ -15,10 +10,9 @@
 
 #include "Polyline.h"
 
-namespace GEOLIB
-{
-class PolylineWithSegmentMarker : public GEOLIB::Polyline
-{
+namespace GEOLIB {
+
+class PolylineWithSegmentMarker: public GEOLIB::Polyline {
 public:
 	PolylineWithSegmentMarker(GEOLIB::Polyline const& polyline);
 	virtual ~PolylineWithSegmentMarker();
@@ -53,6 +47,7 @@ public:
 private:
 	std::vector<bool> _marker;
 };
+
 }
 
 #endif /* POLYLINEWITHSEGMENTMARKER_H_ */

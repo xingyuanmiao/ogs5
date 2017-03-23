@@ -574,6 +574,7 @@ WARN_LOGFILE           =
 # with spaces.
 
 INPUT                  = ${CMAKE_SOURCE_DIR}/Base \
+                         ${CMAKE_SOURCE_DIR}/Qt \
                          ${CMAKE_SOURCE_DIR}/GEO \
                          ${CMAKE_SOURCE_DIR}/MathLib \
                          ${CMAKE_SOURCE_DIR}/FileIO \
